@@ -10,7 +10,7 @@ file-version: 1
 # NOTE: The above also includes players with "*" permissions, such as server owners! You MUST be OP to bypass a non-bypassable world!
 dimensions:
   end:
-    disabled: false
+    paused: false
     bypassable: true
     alert:
       # Allows you to alert players if they attempt to teleport to disabled worlds
@@ -24,7 +24,7 @@ dimensions:
         enabled: true
         message: "YOU SHALL NOT PASS"
   nether:
-    disabled: false
+    paused: false
     bypassable: true
     alert:
       # Allows you to alert players if they attempt to teleport to disabled worlds
@@ -38,6 +38,12 @@ dimensions:
         enabled: true
         message: "YOU SHALL NOT PASS"
 
+# The name of the world you want to kick players to if they are currently in a dimension when it's paused.
+# If a player attempts to teleport to a paused dimension, they'll be teleported back to their previous world's spawn point. This value is ignored in that scenario
+kick-world: "world"
+
+# If we should try to teleport them to their bed first
+try-bed-first: true
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #
@@ -51,6 +57,6 @@ language: en_US
 #                           C R E D I T S                            #
 ######################################################################
 # Credit where credit is due! If you contribute to Honeypot in any way, you'll get your name here
-# Code Contributions: TerrrorByte
+# Code Contributions: TerrorByteTW
 # The next line is ignored, just a dummy value so the credits above get populated within the config!
 thank-you: true
