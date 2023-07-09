@@ -3,8 +3,9 @@ language-version: 1
 
 # Language configs for this plugin use MiniMessage. If you need to know how to use MiniMessage, click the link below!
 # https://docs.advntr.dev/minimessage/format.html#standard-tags
-prefix: "<dark_gray>[<orange>DimensionPause<dark_gray>]<reset>"
+prefix: "<dark_gray>[<gold>DimensionPause<dark_gray>]<reset>"
 unknown-error: "An error occurred while performing that command"
+no-permission: "Sorry, you don't have permission to run this command."
 toggled:
   nether: "The Nether has been "
   end: "The End has been "

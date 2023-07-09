@@ -2,6 +2,15 @@
 file-version: 1
 
 ######################################################################
+#                    F O R M A T T I N G   N O T E S                 #
+######################################################################
+
+# This plugin uses MiniMessage to format text. This means that color codes such as &c and decorations such as &l will not work.
+# To use MiniMessage, see this link: https://docs.advntr.dev/minimessage/format.html
+# Strict mode is not enabled in this plugin, so don't feel like you need to close your tags :)
+# You may also use <reset> if you like
+
+######################################################################
 #                     P L U G I N   S E T T I N G S                  #
 ######################################################################
 
@@ -17,12 +26,16 @@ dimensions:
       title:
         # Set if a title will be displayed if a player attempts to enter a disabled world
         enabled: true
-        title: "Sorry, you may not enter this world yet!"
-        subtitle: "You may set subtitles as well, or leave it as \"\" for a blank line"
+        title: "Sorry, <light_purple>The End</light_purple> is currently <red>paused</red>!"
+        subtitle: "As a result, you may not enter <light_purple>The End</light_purple> or <light_purple>activate End Portals</light_purple>"
       chat:
         # Set if a chat message will be sent to the player if they attempt to enter a disabled world
-        enabled: true
+        enabled: false
         message: "YOU SHALL NOT PASS"
+      on-toggle:
+        # Alert players when the dimension is toggled. This will always be a chat message. Use %state% to display the current state of the dimension.
+        enabled: true
+        message: "Attention! <light_purple>The End</light_purple> has been %state%!"
   nether:
     paused: false
     bypassable: true
@@ -31,12 +44,17 @@ dimensions:
       title:
         # Set if a title will be displayed if a player attempts to enter a disabled world
         enabled: true
-        title: "Sorry, you may not enter this world yet!"
-        subtitle: "You may set subtitles as well, or leave it as \"\" for a blank line"
+        title: "Sorry, <red>The Nether</red> is currently <red>paused</red>!"
+        subtitle: "As a result, you may not enter <red>The Nether</red> or <red>activate Nether Portals</red>"
       chat:
         # Set if a chat message will be sent to the player if they attempt to enter a disabled world
-        enabled: true
+        enabled: false
         message: "YOU SHALL NOT PASS"
+      on-toggle:
+        # Alert players when the dimension is toggled. This will always be a chat message. Use %state% to display the current state of the dimension.
+        enabled: true
+        message: "Attention! <red>The Nether</red> has been %state%!"
+
 
 # The name of the world you want to kick players to if they are currently in a dimension when it's paused.
 # If a player attempts to teleport to a paused dimension, they'll be teleported back to their previous world's spawn point. This value is ignored in that scenario
