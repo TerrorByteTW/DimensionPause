@@ -1,3 +1,18 @@
+<p align="center">
+    <a href="https://modrinth.com/plugin/dimensionpause">
+        <img alt="Modrinth" src="https://img.shields.io/badge/Download%20at-Modrinth-brightgreen?style=for-the-badge&logo=modrinth">
+    </a>
+    <a href="https://polymart.org/resource/dimensionpause.4411">
+        <img alt="Polymart" src="https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge">
+    </a>
+    <a href="https://builtbybit.com/resources/dimensionpause.30070/">
+        <img alt="BuiltByBit" src="https://img.shields.io/badge/Download%20At-BuiltByBit-%232c86c1?style=for-the-badge">
+    </a>
+    <a href="https://www.spigotmc.org/resources/dimensionpause.111113/">
+        <img alt="SpigotMC" src="https://img.shields.io/badge/Download%20At-SpigotMC-yellow?style=for-the-badge">
+    </a>
+</p>
+
 # Dimension Pause 🌎⌚
 
 ## What is Dimension Pause?
