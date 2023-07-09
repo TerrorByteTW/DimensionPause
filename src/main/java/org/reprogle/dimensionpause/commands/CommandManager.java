@@ -8,6 +8,7 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reprogle.dimensionpause.commands.subcommands.Reload;
+import org.reprogle.dimensionpause.commands.subcommands.State;
 import org.reprogle.dimensionpause.commands.subcommands.Toggle;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class CommandManager implements TabExecutor {
 	public CommandManager() {
 		subcommands.add(new Toggle());
 		subcommands.add(new Reload());
+		subcommands.add(new State());
 
 		for (int i = 0; i < getSubcommands().size(); i++) {
 			subcommandsNameOnly.add(getSubcommands().get(i).getName());

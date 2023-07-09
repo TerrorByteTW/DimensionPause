@@ -41,9 +41,11 @@ public class CommandFeedback {
 			case "usage" ->
 					feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
 							.append(chatPrefix).append(Component.text(" "))
-							.append(Component.text("Need help?", NamedTextColor.WHITE))
-							.append(Component.text("\n  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("toggle [end | nether]", NamedTextColor.GRAY))
-							.append(Component.text("\n-----------------------", NamedTextColor.WHITE))
+							.append(Component.text("Need help?\n \n", NamedTextColor.WHITE))
+							.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("toggle [end | nether] \n", NamedTextColor.GRAY))
+							.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("state [end | nether] \n", NamedTextColor.GRAY))
+							.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("reload \n \n", NamedTextColor.GRAY))
+							.append(Component.text("-----------------------", NamedTextColor.WHITE))
 							.build();
 			case "nopermission" -> feedbackMessage = Component.text().append(chatPrefix)
 					.append(Component.text(" "))
@@ -70,6 +72,26 @@ public class CommandFeedback {
 							.append(Component.text(" "))
 							.append(mm.deserialize(languageFile.getString("toggled.default")))
 							.build();
+				}
+			}
+			case "state" -> {
+				Component pausedComponent = Component.text("paused").color(NamedTextColor.RED);
+				Component unpausedComponent = Component.text("unpaused").color(NamedTextColor.GREEN);
+
+				if (dimension.length > 0 && dimension[0].equals("nether")) {
+					feedbackMessage = Component.text().append(chatPrefix)
+							.append(Component.text(" "))
+							.append(mm.deserialize(languageFile.getString("state.nether")))
+							.append(DimensionPausePlugin.ds.getState(World.Environment.NETHER) ? pausedComponent : unpausedComponent)
+							.build();
+				} else if (dimension.length > 0 && dimension[0].equals("end")) {
+					feedbackMessage = Component.text().append(chatPrefix)
+							.append(Component.text(" "))
+							.append(mm.deserialize(languageFile.getString("state.end")))
+							.append(DimensionPausePlugin.ds.getState(World.Environment.THE_END) ? pausedComponent : unpausedComponent)
+							.build();
+				} else {
+					return Component.empty();
 				}
 			}
 			default -> feedbackMessage = Component.text().append(chatPrefix)

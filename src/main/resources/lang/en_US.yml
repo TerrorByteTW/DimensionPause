@@ -7,6 +7,9 @@ prefix: "<dark_gray>[<gold>DimensionPause<dark_gray>]<reset>"
 unknown-error: "An error occurred while performing that command"
 no-permission: "Sorry, you don't have permission to run this command."
 toggled:
-  nether: "The Nether has been "
-  end: "The End has been "
+  nether: "<red>The Nether</red> has been "
+  end: "<light_purple>The End</light_purple> has been "
   default: "The dimension has been toggled!"
+state:
+  nether: "<red>The Nether</red> is currently "
+  end: "<light_purple>The End</light_purple> is currently "
