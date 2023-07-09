@@ -1,0 +1,12 @@
+# This is the config version number. DO NOT TOUCH THIS!!!!!
+file-version: 1
+
+# A list of dimensions
+dimensions:
+  end:
+    disabled: false
+    bypassable: true
+  nether:
+    disabled: false
+    bypassable: true
+

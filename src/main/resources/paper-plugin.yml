@@ -1,0 +1,25 @@
+name: DimensionPause
+version: '${project.version}'
+main: org.reprogle.dimensionpause.DimensionPausePlugin
+api-version: '1.20'
+prefix: "[DimensionPause]"
+authors: [TerrorByteTW]
+description: Allows you to pause dimensions to prevent players from entering them
+commands:
+  dimensionpause:
+    description: Allows you to control the DimensionPause plugin
+    alias: [ dp ]
+
+permissions:
+  dimensionpause.bypass:
+    description: Allows a player to bypass a dimension pause
+    default: op
+    children:
+      dimensionpause.end: true
+      dimensionpause.nether: true
+  dimensionpause.commands:
+    description: Allows access to the dimension pause commands. This must be given to all players who need to use dimension pause commands
+    default: op
+  dimensionpause.end:
+    description: Allows a player to bypass
+    default: op
