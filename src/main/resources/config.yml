@@ -1,12 +1,56 @@
-# This is the config version number. DO NOT TOUCH THIS!!!!!
+# This is the config version number. This will auto-increment each time a config update is done. DO NOT TOUCH THIS!!!!!
 file-version: 1
 
-# A list of dimensions
+######################################################################
+#                     P L U G I N   S E T T I N G S                  #
+######################################################################
+
+# A list of dimensions. You may set these to be disabled or not, and also set them to be bypassable
+# If a dimension is not bypassable, only OPs may enter it, players with the bypass permission may not.
+# NOTE: The above also includes players with "*" permissions, such as server owners! You MUST be OP to bypass a non-bypassable world!
 dimensions:
   end:
     disabled: false
     bypassable: true
+    alert:
+      # Allows you to alert players if they attempt to teleport to disabled worlds
+      title:
+        # Set if a title will be displayed if a player attempts to enter a disabled world
+        enabled: true
+        title: "Sorry, you may not enter this world yet!"
+        subtitle: "You may set subtitles as well, or leave it as \"\" for a blank line"
+      chat:
+        # Set if a chat message will be sent to the player if they attempt to enter a disabled world
+        enabled: true
+        message: "YOU SHALL NOT PASS"
   nether:
     disabled: false
     bypassable: true
+    alert:
+      # Allows you to alert players if they attempt to teleport to disabled worlds
+      title:
+        # Set if a title will be displayed if a player attempts to enter a disabled world
+        enabled: true
+        title: "Sorry, you may not enter this world yet!"
+        subtitle: "You may set subtitles as well, or leave it as \"\" for a blank line"
+      chat:
+        # Set if a chat message will be sent to the player if they attempt to enter a disabled world
+        enabled: true
+        message: "YOU SHALL NOT PASS"
 
+
+######################################################################
+#                      C H A T   S E T T I N G S                     #
+######################################################################
+bypass-language-check: false
+# Select your language. Current supported languages are: [en_US]
+# Want to create your own translation? Visit here: https://github.com/TerrorByteTW/Honeypot/wiki/Translating-Honeypot
+language: en_US
+
+######################################################################
+#                           C R E D I T S                            #
+######################################################################
+# Credit where credit is due! If you contribute to Honeypot in any way, you'll get your name here
+# Code Contributions: TerrrorByte
+# The next line is ignored, just a dummy value so the credits above get populated within the config!
+thank-you: true
