@@ -11,6 +11,7 @@ If the player is currently in a dimension when it is disabled, then they are kic
 ## Future Features
 * Support multiple worlds as well as dimensions
   * Currently, if you create multiple Nether worlds with a multi-world plugin, such as MultiVerse, you can only disable *all* Nether worlds, not just specific ones.
+* Support Velocity / BungeeCord
 * Temporarily disable dimensions (Disable dimensions for an hour, for example)
 * Create an API for developers to integrate with DimensionPause
 
