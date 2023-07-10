@@ -18,7 +18,7 @@
 ## What is Dimension Pause?
 Dimension Pause is a super simple, lightweight plugin that allows you to temporarily block players from creating dimension portals or entering dimensions.
 
-It works by detecting players attempting to create portals, or detecting when a player switches worlds (Such as with using Essentials's /home feature). When this happens,
+It works by detecting players attempting to create portals, or detecting when a player switches worlds (Such as entering an already-existing portal, or using Essentials's `/home` feature). When this happens,
 if the world is paused and certain criteria is not met, the player is either blocked from creating the portal, or kicked out of the world.
 
 If the player is currently in a dimension when it is disabled, then they are kicked out to either their bed or a world defined in config.
