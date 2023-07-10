@@ -31,9 +31,11 @@ If the player is currently in a dimension when it is disabled, then they are kic
 * Create an API for developers to integrate with DimensionPause
 
 ## Commands & Permissions
+All commands may substitute `/dimensionpause` with `/dp` for conciseness
+
 | Command                                | Permission              | Description                                                                                   |
 |----------------------------------------|-------------------------|-----------------------------------------------------------------------------------------------|
-| /dimensionpause                        | dimensionpause.commands | Displays help menu (Alias of `/dp`)                                                           |
+| /dimensionpause                        | dimensionpause.commands | Displays help menu                                                                            |
 | /dimensionpause toggle <end \| nether> | dimensionpause.toggle   | Pauses or unpauses a given dimension type                                                     |
 | /dimensionpause state <end \| nether>  | dimensionpause.state    | Checks the state of a given dimension type                                                    |
 | /dimensionpause reload                 | dimensionpause.reload   | Reloads DimensionPause configs and language files                                             |
