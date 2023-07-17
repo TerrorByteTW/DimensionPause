@@ -1,10 +1,12 @@
 # This is the version of the language file. If new translations are added, this will automatically update. DO NOT TOUCH THIS!!!!!
-language-version: 1
+language-version: 3
 
 # Language configs for this plugin use MiniMessage. If you need to know how to use MiniMessage, click the link below!
 # https://docs.advntr.dev/minimessage/format.html#standard-tags
 prefix: "<dark_gray>[<gold>DimensionPause<dark_gray>]<reset>"
 unknown-error: "An error occurred while performing that command"
+reload: "Dimension Pause config has been reloaded!"
+io-exception: "<red>An error occurred while saving the config file</red>. Dimension state changes in-game will still work, but they may be reset upon reload or restart."
 no-permission: "Sorry, you don't have permission to run this command."
 toggled:
   nether: "<red>The Nether</red> has been "

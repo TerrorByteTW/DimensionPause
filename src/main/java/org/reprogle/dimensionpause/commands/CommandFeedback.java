@@ -51,6 +51,14 @@ public class CommandFeedback {
 					.append(Component.text(" "))
 					.append(mm.deserialize(languageFile.getString("no-permission")))
 					.build();
+			case "reload" -> feedbackMessage = Component.text().append(chatPrefix)
+					.append(Component.text(" "))
+					.append(mm.deserialize(languageFile.getString("reload")))
+					.build();
+			case "io-exception" -> feedbackMessage = Component.text().append(chatPrefix)
+					.append(Component.text(" "))
+					.append(mm.deserialize(languageFile.getString("io-exception")))
+					.build();
 			case "newstate" -> {
 				Component pausedComponent = Component.text("paused").color(NamedTextColor.RED);
 				Component unpausedComponent = Component.text("unpaused").color(NamedTextColor.GREEN);
