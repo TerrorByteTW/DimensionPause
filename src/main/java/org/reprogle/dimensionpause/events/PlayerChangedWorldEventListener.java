@@ -10,14 +10,17 @@ import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
+// TODO: Add support for the filter list added in config.yml
 public class PlayerChangedWorldEventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public static void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
-		// Grab the environment and the player. If the player is teleporting to the overworld, ignore it
+		// Grab the environment and the player. If the player is teleporting to the
+		// overworld, ignore it
 		World.Environment env = event.getPlayer().getWorld().getEnvironment();
 		Player p = event.getPlayer();
-		if (env.equals(World.Environment.NORMAL)) return;
+		if (env.equals(World.Environment.NORMAL))
+			return;
 
 		// Grab the bypassable values for the nether and end.
 		boolean netherBypass = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bypassable");
@@ -35,8 +38,10 @@ public class PlayerChangedWorldEventListener implements Listener {
 
 			// Send the player the proper title for the environment they tried to access
 			String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
-			boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + environment + ".alert.title.enabled");
-			boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + environment + ".alert.chat.enabled");
+			boolean sendTitle = ConfigManager.getPluginConfig()
+					.getBoolean("dimensions." + environment + ".alert.title.enabled");
+			boolean sendChat = ConfigManager.getPluginConfig()
+					.getBoolean("dimensions." + environment + ".alert.chat.enabled");
 
 			if (sendTitle) {
 				p.showTitle(CommandFeedback.getTitleForDimension(env));

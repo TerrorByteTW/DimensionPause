@@ -1,5 +1,5 @@
 # This is the config version number. This will auto-increment each time a config update is done. DO NOT TOUCH THIS!!!!!
-file-version: 1
+file-version: 2
 
 ######################################################################
 #                    F O R M A T T I N G   N O T E S                 #
@@ -55,6 +55,16 @@ dimensions:
         enabled: true
         message: "Attention! <red>The Nether</red> has been %state%!"
 
+# A list of worlds you want to allow DimensionPause to work on. Enter the root world name, it will automatically check the end and the nether
+# For example, if your world is named "Spawn", just enter "Spawn", don't enter "Spawn-nether" or "Spawn-the-end"
+worlds:
+  world-list: [
+    'world',
+    'spawn'
+  ]
+  # Set invert to True if you want the world-list to EXCLUDE worlds to filter, instead of INCLUDE.
+  invert: false
+
 
 # The name of the world you want to kick players to if they are currently in a dimension when it's paused.
 # If a player attempts to teleport to a paused dimension, they'll be teleported back to their previous world's spawn point. This value is ignored in that scenario
@@ -69,6 +79,7 @@ try-bed-first: true
 bypass-language-check: false
 # Select your language. Current supported languages are: [en_US]
 # Want to create your own translation? Visit here: https://github.com/TerrorByteTW/Honeypot/wiki/Translating-Honeypot
+# The above link is written for the Honeypot plugin, but the exact same concept works for DimensionPause!
 language: en_US
 
 ######################################################################
