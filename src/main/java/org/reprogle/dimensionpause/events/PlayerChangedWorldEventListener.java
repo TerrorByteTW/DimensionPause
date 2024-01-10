@@ -1,3 +1,19 @@
+/*
+ * DimensionPause is a tool for dynamic dimension locking
+ * Copyright TerrorByte (c) 2022-2024
+ * Copyright DimensionPause Contributors (c) 2022-2024
+ * 
+ * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+ * as published by the Mozilla under the Mozilla Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+ * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+ * See the MPL 2.0 license for more details.
+ * 
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.dimensionpause.events;
 
 import org.bukkit.World;
@@ -10,8 +26,11 @@ import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
-// TODO: Add support for the filter list added in config.yml
 public class PlayerChangedWorldEventListener implements Listener {
+
+	PlayerChangedWorldEventListener() {
+		// Private constructor to hide the implicit public one
+	}
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public static void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
@@ -19,7 +38,7 @@ public class PlayerChangedWorldEventListener implements Listener {
 		// overworld, ignore it
 		World.Environment env = event.getPlayer().getWorld().getEnvironment();
 		Player p = event.getPlayer();
-		if (env.equals(World.Environment.NORMAL))
+		if (env.equals(World.Environment.NORMAL) || DimensionPausePlugin.ds.isAllowedWorld(p.getWorld()))
 			return;
 
 		// Grab the bypassable values for the nether and end.
@@ -33,8 +52,10 @@ public class PlayerChangedWorldEventListener implements Listener {
 			if (DimensionPausePlugin.ds.canBypass(p, env.equals(World.Environment.NETHER) ? netherBypass : endBypass))
 				return;
 
-			// If the all of the above fail, force them back to the world they came from
-			p.teleport(event.getFrom().getSpawnLocation());
+			if (!DimensionPausePlugin.ds.kickToWorld(p, env, true))
+				// If we are unable to do any of the fallback, force them back to the world they
+				// came from
+				p.teleport(event.getFrom().getSpawnLocation());
 
 			// Send the player the proper title for the environment they tried to access
 			String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
