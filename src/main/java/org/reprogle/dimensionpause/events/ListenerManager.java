@@ -10,7 +10,7 @@ public class ListenerManager {
 	 * @param plugin The Honeypot plugin instance
 	 */
 	public static void setupListeners(Plugin plugin) {
-		plugin.getServer().getPluginManager().registerEvents(new PlayerChangedWorldEventListener(), plugin);
+		plugin.getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), plugin);
 		plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
 		plugin.getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), plugin);
 	}

@@ -5,17 +5,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
-public class PlayerChangedWorldEventListener implements Listener {
+public class PlayerTeleportEventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public static void onPlayerChangeWorld(PlayerChangedWorldEvent event) {
+	public static void onPlayerTeleport(PlayerTeleportEvent event) {
+		// If the teleport is localized within the world, ignore the event
+		if (event.getFrom().getWorld().equals(event.getTo().getWorld())) {
+			return;
+		}
 		// Grab the environment and the player. If the player is teleporting to the overworld, ignore it
-		World.Environment env = event.getPlayer().getWorld().getEnvironment();
+		World.Environment env = event.getTo().getWorld().getEnvironment();
 		Player p = event.getPlayer();
 		if (env.equals(World.Environment.NORMAL)) return;
 
@@ -30,8 +34,8 @@ public class PlayerChangedWorldEventListener implements Listener {
 			if (DimensionPausePlugin.ds.canBypass(p, env.equals(World.Environment.NETHER) ? netherBypass : endBypass))
 				return;
 
-			// If the all of the above fail, force them back to the world they came from
-			p.teleport(event.getFrom().getSpawnLocation());
+			// If the all of the above fail cancel the event
+			event.setCancelled(true);
 
 			// Send the player the proper title for the environment they tried to access
 			String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
