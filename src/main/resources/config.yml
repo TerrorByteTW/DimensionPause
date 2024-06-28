@@ -1,5 +1,5 @@
 # This is the config version number. This will auto-increment each time a config update is done. DO NOT TOUCH THIS!!!!!
-file-version: 1
+file-version: 2
 
 ######################################################################
 #                    F O R M A T T I N G   N O T E S                 #
@@ -39,6 +39,8 @@ dimensions:
   nether:
     paused: false
     bypassable: true
+    # Applies a bit of knockback velocity when a player tries to teleport
+    bounce-back: true
     alert:
       # Allows you to alert players if they attempt to teleport to disabled worlds
       title:
