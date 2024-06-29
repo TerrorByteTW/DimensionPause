@@ -13,6 +13,7 @@ public class ListenerManager {
 		plugin.getServer().getPluginManager().registerEvents(new PlayerChangedWorldEventListener(), plugin);
 		plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
 		plugin.getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), plugin);
+		plugin.getServer().getPluginManager().registerEvents(new EntityPortalEnterEventListener(), plugin);
 	}
 
 }
