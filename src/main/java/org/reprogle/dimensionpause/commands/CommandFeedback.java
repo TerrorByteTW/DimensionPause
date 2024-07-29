@@ -117,7 +117,7 @@ public class CommandFeedback {
 		final Component mainTitle = Component.text().append(mm.deserialize(ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.title.title"))).build();
 		final Component subtitle = Component.text().append(mm.deserialize(ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.title.subtitle"))).build();
 
-		final Title.Times times = Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500));
+		final Title.Times times = Title.Times.of(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500));
 		return Title.title(mainTitle, subtitle, times);
 	}
 

@@ -1,7 +1,7 @@
 name: DimensionPause
 version: '${project.version}'
 main: org.reprogle.dimensionpause.DimensionPausePlugin
-api-version: '1.20'
+api-version: '1.17'
 prefix: "DimensionPause"
 authors: [TerrorByteTW]
 description: Allows you to pause dimensions to prevent players from entering them

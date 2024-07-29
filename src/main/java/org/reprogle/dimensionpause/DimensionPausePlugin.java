@@ -27,7 +27,7 @@ public final class DimensionPausePlugin extends JavaPlugin {
 
 		new UpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/DimensionPause/master/version.txt").getVersion(latest -> {
 			//noinspection UnstableApiUsage
-			if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getPluginMeta().getVersion().replace(".", ""))) {
+			if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
 				Component updateMessage = Component.text()
 						.append(CommandFeedback.getChatPrefix())
 						.append(Component.text(" "))
