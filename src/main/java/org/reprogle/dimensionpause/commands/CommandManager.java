@@ -3,7 +3,6 @@ package org.reprogle.dimensionpause.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,10 +32,8 @@ public class CommandManager implements TabExecutor {
 	@Override
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
-		if (!(sender instanceof Player p)) return false;
-
-		if (!(p.hasPermission("dimensionpause.commands") || p.hasPermission("dimensionpause.*") || p.isOp())) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+		if (!sender.hasPermission("dimensionpause.commands")) {
+			sender.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 			return false;
 		}
 
@@ -46,19 +43,19 @@ public class CommandManager implements TabExecutor {
 			// If so, run said subcommand
 			for (SubCommand subcommand : subcommands) {
 				if (args[0].equalsIgnoreCase(subcommand.getName())) {
-					if (Boolean.FALSE.equals(checkPermissions(p, subcommand))) {
-						p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+					if (!checkPermissions(sender, subcommand)) {
+						sender.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 						return false;
 					}
 
-					subcommand.perform(p, args);
+					subcommand.perform(sender, args);
 					return true;
 				}
 			}
 
-			p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+			sender.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
 		} else {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+			sender.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
 		}
 
 		return false;
@@ -67,9 +64,8 @@ public class CommandManager implements TabExecutor {
 
 	@Override
 	public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-		if (!(sender instanceof Player p)) return null;
 
-		if (!(p.hasPermission("dimensionpause.commands") || p.hasPermission("dimensionpause.*") || p.isOp()))
+		if (sender.hasPermission("dimensionpause.commands"))
 			return null;
 
 		if (args.length == 1) {
@@ -91,7 +87,7 @@ public class CommandManager implements TabExecutor {
 					// those accordingly.
 					ArrayList<String> subcommandsTabComplete = new ArrayList<>();
 
-					StringUtil.copyPartialMatches(args[args.length - 1], subcommand.getSubcommands(p, args),
+					StringUtil.copyPartialMatches(args[args.length - 1], subcommand.getSubcommands(sender, args),
 							subcommandsTabComplete);
 
 					return subcommandsTabComplete;
@@ -105,17 +101,17 @@ public class CommandManager implements TabExecutor {
 	/**
 	 * Check if the Player has the permissions necessary to run the subcommand
 	 *
-	 * @param p          The player to check
+	 * @param sender     The CommandSender to check
 	 * @param subcommand The subcommand we're checking
 	 */
-	private Boolean checkPermissions(Player p, SubCommand subcommand) {
+	private boolean checkPermissions(CommandSender sender, SubCommand subcommand) {
 		boolean allowed = false;
 
 		if (subcommand.getRequiredPermissions().size() < 1)
 			return true;
 
 		for (String permission : subcommand.getRequiredPermissions()) {
-			if (p.hasPermission(permission)) {
+			if (sender.hasPermission(permission)) {
 				allowed = true;
 				break;
 			}

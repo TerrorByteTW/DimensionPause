@@ -1,6 +1,6 @@
 package org.reprogle.dimensionpause.commands.subcommands;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 import org.reprogle.dimensionpause.commands.SubCommand;
@@ -16,7 +16,7 @@ public class Reload implements SubCommand {
 	}
 
 	@Override
-	public void perform(Player p, String[] args) {
+	public void perform(CommandSender sender, String[] args) {
 		try {
 		ConfigManager.getPluginConfig().reload();
 		ConfigManager.getPluginConfig().save();
@@ -24,7 +24,7 @@ public class Reload implements SubCommand {
 		ConfigManager.getLanguageFile().reload();
 		ConfigManager.getLanguageFile().save();
 
-		p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
+		sender.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
 
 		} catch (IOException e) {
 			// Nothing
@@ -32,7 +32,7 @@ public class Reload implements SubCommand {
 	}
 
 	@Override
-	public List<String> getSubcommands(Player p, String[] args) {
+	public List<String> getSubcommands(CommandSender sender, String[] args) {
 		return null;
 	}
 
