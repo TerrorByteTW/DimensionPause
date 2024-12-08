@@ -9,7 +9,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
@@ -23,14 +26,14 @@ public class EntityPortalEnterEventListener implements Listener {
 
     private final Set<UUID> playersBeingHandled = new HashSet<>();
 
+    // Handler for nether portals
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityPortalEnter(EntityPortalEnterEvent event) {
+    public void onNetherPortalEnter(EntityPortalEnterEvent event) {
         // Check if the event is a player, if nether bounce-back option is enabled, and if the nether is currently paused
-        if (!(event.getEntity() instanceof Player) || !ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bounce-back") || !DimensionPausePlugin.ds.getState(World.Environment.NETHER)) {
+        if (!(event.getEntity() instanceof Player p) || !ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bounce-back") || !DimensionPausePlugin.ds.getState(World.Environment.NETHER)) {
             return;
         }
 
-        Player p = (Player) event.getEntity();
         Location currentLocation = event.getLocation().set(event.getLocation().getBlockX(), event.getLocation().getBlockY(), event.getLocation().getBlockZ());
 
         if (currentLocation.getBlock().getType() != Material.NETHER_PORTAL) {
@@ -78,11 +81,10 @@ public class EntityPortalEnterEventListener implements Listener {
             }
         }
 
-        p.teleport(p.getLocation().clone().add(newVecX, .2, newVecZ));
-
         // Delay the velocity and removal of the player from the set
         DimensionPausePlugin.plugin.getServer().getScheduler().runTaskLater(DimensionPausePlugin.plugin, () -> {
-            p.setVelocity(new Vector(newVecX, .6, newVecZ));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 5, false, false));
+            p.setVelocity(new Vector(newVecX, .7, newVecZ));
             playersBeingHandled.remove(p.getUniqueId());
         }, 1L); // 1 tick or 1/20 of a second
 
@@ -95,6 +97,73 @@ public class EntityPortalEnterEventListener implements Listener {
 
         if (sendChat) {
             p.sendMessage(CommandFeedback.getChatForDimension(World.Environment.NETHER));
+        }
+    }
+
+    // Handler for end portals
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEndPortalEnter(EntityPortalEnterEvent event) {
+        // Check if the event is a player, if the end bounce-back option is enabled, and if the end is currently paused
+        if (!(event.getEntity() instanceof Player p) || !ConfigManager.getPluginConfig().getBoolean("dimensions.end.bounce-back") || !DimensionPausePlugin.ds.getState(World.Environment.THE_END)) {
+            return;
+        }
+
+        Location currentLocation = event.getLocation().set(event.getLocation().getBlockX(), event.getLocation().getBlockY(), event.getLocation().getBlockZ());
+
+        if (currentLocation.getBlock().getType() != Material.END_PORTAL) {
+            return;
+        }
+
+        // If the player can bypass the environment, quit processing
+        if (DimensionPausePlugin.ds.canBypass(p, ConfigManager.getPluginConfig().getBoolean("dimensions.end.bypassable"))) {
+            return;
+        }
+
+        // Ensure this event is not already being handled
+        if (playersBeingHandled.contains(p.getUniqueId())) {
+            return;
+        }
+
+        playersBeingHandled.add(p.getUniqueId());
+
+        float yaw = p.getLocation().getYaw();
+
+        double radians = Math.toRadians(yaw);
+
+        double x = Math.sin(radians);
+        double z = -Math.cos(radians);
+
+        Vector knockbackDirection = new Vector(x, 0.7, z);
+
+        knockbackDirection.multiply(0.7);
+        p.setVelocity(knockbackDirection);
+
+        // Delay the velocity and removal of the player from the set
+        DimensionPausePlugin.plugin.getServer().getScheduler().runTaskLater(DimensionPausePlugin.plugin, () -> {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 5, false, false));
+            playersBeingHandled.remove(p.getUniqueId());
+        }, 5L); // 1 tick or 1/20 of a second
+
+        boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions.end.alert.title.enabled");
+        boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions.end.alert.chat.enabled");
+
+        if (sendTitle) {
+            p.showTitle(CommandFeedback.getTitleForDimension(World.Environment.THE_END));
+        }
+
+        if (sendChat) {
+            p.sendMessage(CommandFeedback.getChatForDimension(World.Environment.THE_END));
+        }
+    }
+
+
+    // Small event listener to handle cases such as fall damage
+    @EventHandler
+    public void onPlayerDamageEvent(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player p)) return;
+
+        if (playersBeingHandled.contains(p.getUniqueId())) {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10, 5, false, false));
         }
     }
 

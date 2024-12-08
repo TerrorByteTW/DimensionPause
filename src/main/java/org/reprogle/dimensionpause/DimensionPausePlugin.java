@@ -17,17 +17,18 @@ public final class DimensionPausePlugin extends JavaPlugin {
 	public void onEnable() {
 		plugin = this;
 		ConfigManager.setupConfig(this);
-		Metrics metrics = new Metrics(this, 19032);
+		new Metrics(this, 19032);
 
-		getCommand("dimensionpause").setExecutor(new CommandManager());
+		CommandManager manager = new CommandManager();
+
+		getCommand("dimensionpause").setExecutor(manager);
 		ListenerManager.setupListeners(this);
 
 		ds = new DimensionState(this);
 		getLogger().info("Dimension Pause has been loaded");
 
 		new UpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/DimensionPause/master/version.txt").getVersion(latest -> {
-			//noinspection UnstableApiUsage
-			if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
+            if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
 				Component updateMessage = Component.text()
 						.append(CommandFeedback.getChatPrefix())
 						.append(Component.text(" "))

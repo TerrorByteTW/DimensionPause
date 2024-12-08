@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class CommandFeedback {
 
-	public static MiniMessage mm = MiniMessage.miniMessage();
+	public static final MiniMessage mm = MiniMessage.miniMessage();
 
 	/**
 	 * Return the chat prefix object from config

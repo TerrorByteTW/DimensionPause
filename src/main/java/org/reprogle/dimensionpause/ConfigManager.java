@@ -10,14 +10,13 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class ConfigManager {
     private static YamlDocument config;
     private static YamlDocument languageFile;
 
-    private static final List<String> languages = Arrays.asList("en_US");
+    private static final List<String> languages = List.of("en_US");
 
     /**
      * Sets up the plugin config and saves it to private variables for use later.
