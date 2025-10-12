@@ -5,12 +5,9 @@
     <a href="https://polymart.org/resource/dimensionpause.4411">
         <img alt="Polymart" src="https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge">
     </a>
-    <a href="https://builtbybit.com/resources/dimensionpause.30070/">
-        <img alt="BuiltByBit" src="https://img.shields.io/badge/Download%20At-BuiltByBit-%232c86c1?style=for-the-badge">
-    </a>
-    <a href="https://www.spigotmc.org/resources/dimensionpause.111113/">
-        <img alt="SpigotMC" src="https://img.shields.io/badge/Download%20At-SpigotMC-yellow?style=for-the-badge">
-    </a>
+    <a href="https://hangar.papermc.io/TerrorByte/DimensionPause">
+        <img alt="Hangar" src="https://img.shields.io/badge/Download%20At-Hangar-%23f29f22?style=for-the-badge">
+    </a>    
 </p>
 
 # Dimension Pause 🌎⌚

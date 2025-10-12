@@ -1,19 +1,3 @@
-/*
- * DimensionPause is a tool for dynamic dimension locking
- * Copyright TerrorByte (c) 2022-2024
- * Copyright DimensionPause Contributors (c) 2022-2024
- * 
- * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
- * as published by the Mozilla under the Mozilla Foundation.
- * 
- * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
- * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
- * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
- * See the MPL 2.0 license for more details.
- * 
- * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
- */
-
 package org.reprogle.dimensionpause.commands;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
@@ -28,12 +12,7 @@ import org.reprogle.dimensionpause.DimensionPausePlugin;
 import java.time.Duration;
 import java.util.Objects;
 
-@SuppressWarnings({ "java:S3776", "java:S1192" })
 public class CommandFeedback {
-
-	private CommandFeedback() {
-		// Private constructor to hide the implicit public one
-	}
 
 	public static final MiniMessage mm = MiniMessage.miniMessage();
 
@@ -47,8 +26,7 @@ public class CommandFeedback {
 	}
 
 	/**
-	 * A helper class which helps to reduce boilerplate player.sendMessage code by
-	 * providing the strings to send instead
+	 * A helper class which helps to reduce boilerplate player.sendMessage code by providing the strings to send instead
 	 * of having to copy and paste them.
 	 *
 	 * @param feedback The string to send back
@@ -62,15 +40,11 @@ public class CommandFeedback {
 		switch (feedback.toLowerCase()) {
 			case "usage" ->
 				feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n")
-						.color(NamedTextColor.WHITE)
 						.append(chatPrefix).append(Component.text(" "))
 						.append(Component.text("Need help?\n \n", NamedTextColor.WHITE))
-						.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE))
-						.append(Component.text("toggle [end | nether] \n", NamedTextColor.GRAY))
-						.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE))
-						.append(Component.text("state [end | nether] \n", NamedTextColor.GRAY))
-						.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE))
-						.append(Component.text("reload \n \n", NamedTextColor.GRAY))
+						.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("toggle [end | nether] \n", NamedTextColor.GRAY))
+						.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("state [end | nether] \n", NamedTextColor.GRAY))
+						.append(Component.text("  /dimensionpause ", NamedTextColor.WHITE)).append(Component.text("reload \n \n", NamedTextColor.GRAY))
 						.append(Component.text("-----------------------", NamedTextColor.WHITE))
 						.build();
 			case "nopermission" -> feedbackMessage = Component.text().append(chatPrefix)
@@ -93,15 +67,13 @@ public class CommandFeedback {
 					feedbackMessage = Component.text().append(chatPrefix)
 							.append(Component.text(" "))
 							.append(mm.deserialize(languageFile.getString("toggled.nether")))
-							.append(DimensionPausePlugin.ds.getState(World.Environment.NETHER) ? pausedComponent
-									: unpausedComponent)
+							.append(DimensionPausePlugin.ds.getState(World.Environment.NETHER) ? pausedComponent : unpausedComponent)
 							.build();
 				} else if (dimension.length > 0 && dimension[0].equals("end")) {
 					feedbackMessage = Component.text().append(chatPrefix)
 							.append(Component.text(" "))
 							.append(mm.deserialize(languageFile.getString("toggled.end")))
-							.append(DimensionPausePlugin.ds.getState(World.Environment.THE_END) ? pausedComponent
-									: unpausedComponent)
+							.append(DimensionPausePlugin.ds.getState(World.Environment.THE_END) ? pausedComponent : unpausedComponent)
 							.build();
 				} else {
 					feedbackMessage = Component.text().append(chatPrefix)
@@ -118,15 +90,13 @@ public class CommandFeedback {
 					feedbackMessage = Component.text().append(chatPrefix)
 							.append(Component.text(" "))
 							.append(mm.deserialize(languageFile.getString("state.nether")))
-							.append(DimensionPausePlugin.ds.getState(World.Environment.NETHER) ? pausedComponent
-									: unpausedComponent)
+							.append(DimensionPausePlugin.ds.getState(World.Environment.NETHER) ? pausedComponent : unpausedComponent)
 							.build();
 				} else if (dimension.length > 0 && dimension[0].equals("end")) {
 					feedbackMessage = Component.text().append(chatPrefix)
 							.append(Component.text(" "))
 							.append(mm.deserialize(languageFile.getString("state.end")))
-							.append(DimensionPausePlugin.ds.getState(World.Environment.THE_END) ? pausedComponent
-									: unpausedComponent)
+							.append(DimensionPausePlugin.ds.getState(World.Environment.THE_END) ? pausedComponent : unpausedComponent)
 							.build();
 				} else {
 					return Component.empty();
@@ -144,16 +114,10 @@ public class CommandFeedback {
 	public static Title getTitleForDimension(World.Environment env) {
 		String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
 
-		final Component mainTitle = Component.text()
-				.append(mm.deserialize(
-						ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.title.title")))
-				.build();
-		final Component subtitle = Component.text().append(mm.deserialize(
-				ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.title.subtitle")))
-				.build();
+		final Component mainTitle = Component.text().append(mm.deserialize(ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.title.title"))).build();
+		final Component subtitle = Component.text().append(mm.deserialize(ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.title.subtitle"))).build();
 
-		final Title.Times times = Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3),
-				Duration.ofMillis(500));
+		final Title.Times times = Title.Times.of(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500));
 		return Title.title(mainTitle, subtitle, times);
 	}
 
@@ -161,8 +125,7 @@ public class CommandFeedback {
 		String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
 		return Component.text()
 				.append(getChatPrefix())
-				.append(mm.deserialize(
-						ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.chat.message")))
+				.append(mm.deserialize(ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.chat.message")))
 				.build();
 	}
 
@@ -170,8 +133,7 @@ public class CommandFeedback {
 		String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
 		String stateParsed = newState ? "<red>paused</red>" : "<green>unpaused</green>";
 
-		String preparsedText = ConfigManager.getPluginConfig()
-				.getString("dimensions." + environment + ".alert.on-toggle.message").replace("%state%", stateParsed);
+		String preparsedText = ConfigManager.getPluginConfig().getString("dimensions." + environment + ".alert.on-toggle.message").replace("%state%", stateParsed);
 		return Component.text()
 				.append(getChatPrefix())
 				.append(Component.text(" "))
