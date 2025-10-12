@@ -4,10 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
+
+import org.bukkit.Location;
 
 public class DimensionState {
 
@@ -53,53 +57,62 @@ public class DimensionState {
 			boolean bypassable = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bypassable");
 			for (Player player : DimensionPausePlugin.plugin.getServer().getOnlinePlayers()) {
 				if (player.getWorld().getEnvironment().equals(World.Environment.NETHER) && !canBypass(player, bypassable)) {
-					kickToWorld(player, dimension);
+					kickToWorld(player, dimension, true);
 				}
 			}
-		} else if (currentEndState) {
+		}
+		
+		if (currentEndState) {
 			boolean bypassable = ConfigManager.getPluginConfig().getBoolean("dimensions.end.bypassable");
 			for (Player player : DimensionPausePlugin.plugin.getServer().getOnlinePlayers()) {
 				if (player.getWorld().getEnvironment().equals(World.Environment.THE_END) && !canBypass(player, bypassable)) {
-					kickToWorld(player, dimension);
+					kickToWorld(player, dimension, true);
 				}
 			}
 		}
 	}
 
-	private void kickToWorld(Player player, World.Environment dimension) {
-		if (player.getBedSpawnLocation() != null && ConfigManager.getPluginConfig().getBoolean("try-bed-first")) {
-			player.teleport(player.getBedSpawnLocation());
+	@Nullable
+	public Location kickToWorld(Player player, World.Environment dimension, boolean teleport) {
+		Location loc;
+
+		if (ConfigManager.getPluginConfig().getBoolean("try-bed-first") && player.getBedSpawnLocation() != null) {
+			if (teleport) player.teleport(player.getBedLocation());
+			loc = player.getBedSpawnLocation();
 		} else {
 			World world = Bukkit.getWorld(ConfigManager.getPluginConfig().getString("kick-world"));
 			if (world == null) {
-				DimensionPausePlugin.plugin.getLogger().warning("IMPORTANT MESSAGE! A world has been paused, but at least one player is still in it ( " + player.getName() + "). This player doesn't have a bed, and the kick-world configured in config was not obtainable, so we cannot teleport players out of the world. Please intervene!");
-				return;
+				DimensionPausePlugin.plugin.getLogger().log(Level.WARNING, "IMPORTANT MESSAGE! A world has been paused, but at least one player is still in it ( {0}). This player doesn''t have a bed, and the kick-world configured in config was not obtainable, so we cannot teleport players out of the world. Please intervene!", player.getName());
+				return null;
 			}
 
 			player.teleport(world.getSpawnLocation());
+			loc = world.getSpawnLocation();
 		}
 
-		// Send the player the proper title for the environment they tried to access
-		boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".alert.title.enabled");
-		boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".alert.chat.enabled");
-
-		if (sendTitle) {
-			player.showTitle(CommandFeedback.getTitleForDimension(dimension));
+		if (teleport) {
+			// Send the player the proper title for the environment they tried to access
+			boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".alert.title.enabled");
+			boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".alert.chat.enabled");
+			
+			if (sendTitle) {
+				player.showTitle(CommandFeedback.getTitleForDimension(dimension));
+			}
+		
+			if (sendChat) {
+				player.sendMessage(CommandFeedback.getChatForDimension(dimension));
+			}	
 		}
 
-		if (sendChat) {
-			player.sendMessage(CommandFeedback.getChatForDimension(dimension));
-		}
+		return loc;
 	}
 
 	public boolean getState(World.Environment dimension) {
-		if (dimension.equals(World.Environment.NETHER)) {
-			return ConfigManager.getPluginConfig().getBoolean("dimensions.nether.paused");
-		} else if (dimension.equals(World.Environment.THE_END)) {
-			return ConfigManager.getPluginConfig().getBoolean("dimensions.end.paused");
-		} else {
-			return false;
-		}
+            return switch (dimension) {
+                case NETHER -> ConfigManager.getPluginConfig().getBoolean("dimensions.nether.paused");
+                case THE_END -> ConfigManager.getPluginConfig().getBoolean("dimensions.end.paused");
+                default -> false;
+            };
 	}
 
 	public boolean canBypass(Player player, boolean bypassableFlag) {
