@@ -8,7 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
-import org.reprogle.dimensionpause.commands.CommandFeedback;
 
 public class PlayerTeleportEventListener implements Listener {
 
@@ -38,17 +37,7 @@ public class PlayerTeleportEventListener implements Listener {
 			event.setCancelled(true);
 
 			// Send the player the proper title for the environment they tried to access
-			String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
-			boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + environment + ".alert.title.enabled");
-			boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + environment + ".alert.chat.enabled");
-
-			if (sendTitle) {
-				p.showTitle(CommandFeedback.getTitleForDimension(env));
-			}
-
-			if (sendChat) {
-				p.sendMessage(CommandFeedback.getChatForDimension(env));
-			}
+			DimensionPausePlugin.ds.alertPlayer(p, env);
 		}
 	}
 

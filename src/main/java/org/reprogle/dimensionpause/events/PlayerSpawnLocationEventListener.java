@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.reprogle.dimensionpause.DimensionState;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 public class PlayerSpawnLocationEventListener implements Listener{
@@ -37,6 +38,7 @@ public class PlayerSpawnLocationEventListener implements Listener{
 
             if (location != null) {
                 event.setSpawnLocation(location);
+                DimensionState.alertPlayers.add(event.getPlayer().getUniqueId());
             }
         }
     }

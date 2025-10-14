@@ -9,11 +9,16 @@ import org.reprogle.dimensionpause.commands.CommandFeedback;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
 
 public class DimensionState {
+
+	public static final Set<UUID> alertPlayers = new HashSet<>();
 
 	// Suppress ConstantValue warning for netherPause and endPaused, because that's not true due to #toggleDimension
 	public DimensionState(Plugin plugin) {
@@ -74,10 +79,11 @@ public class DimensionState {
 
 	@Nullable
 	public Location kickToWorld(Player player, World.Environment dimension, boolean teleport) {
+		Location bedSpawn = player.getBedSpawnLocation();
 		Location loc;
 
-		if (ConfigManager.getPluginConfig().getBoolean("try-bed-first") && player.getBedSpawnLocation() != null) {
-			if (teleport) player.teleport(player.getBedLocation());
+		if (ConfigManager.getPluginConfig().getBoolean("try-bed-first") && bedSpawn != null) {
+			if (teleport) player.teleport(bedSpawn);
 			loc = player.getBedSpawnLocation();
 		} else {
 			World world = Bukkit.getWorld(ConfigManager.getPluginConfig().getString("kick-world"));
@@ -91,17 +97,7 @@ public class DimensionState {
 		}
 
 		if (teleport) {
-			// Send the player the proper title for the environment they tried to access
-			boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".alert.title.enabled");
-			boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".alert.chat.enabled");
-			
-			if (sendTitle) {
-				player.showTitle(CommandFeedback.getTitleForDimension(dimension));
-			}
-		
-			if (sendChat) {
-				player.sendMessage(CommandFeedback.getChatForDimension(dimension));
-			}	
+			alertPlayer(player, dimension);
 		}
 
 		return loc;
@@ -119,6 +115,20 @@ public class DimensionState {
 		if (player.isOp()) return true;
 		if (!bypassableFlag) return false;
 		return player.hasPermission("dimensionpause.bypass");
+	}
+
+	public void alertPlayer(Player player, World.Environment dimension) {
+		String env = dimension.equals(World.Environment.NETHER) ? "nether" : "end";
+		boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.title.enabled");
+		boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.chat.enabled");
+		
+		if (sendTitle) {
+			player.showTitle(CommandFeedback.getTitleForDimension(dimension));
+		}
+		
+		if (sendChat) {
+			player.sendMessage(CommandFeedback.getChatForDimension(dimension));
+		}
 	}
 
 	private void alertOfStateChange(Collection<? extends Player> players, World.Environment environment, boolean newState) {
