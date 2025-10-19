@@ -8,6 +8,12 @@
 # IntelliJ
 out/
 
+# Gradle
+/.gradle
+
+# Build Artifacts
+/build
+
 # Compiled class file
 *.class
 

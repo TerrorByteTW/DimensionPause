@@ -2,9 +2,6 @@
     <a href="https://modrinth.com/plugin/dimensionpause">
         <img alt="Modrinth" src="https://img.shields.io/badge/Download%20at-Modrinth-brightgreen?style=for-the-badge&logo=modrinth">
     </a>
-    <a href="https://polymart.org/resource/dimensionpause.4411">
-        <img alt="Polymart" src="https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge">
-    </a>
     <a href="https://hangar.papermc.io/TerrorByte/DimensionPause">
         <img alt="Hangar" src="https://img.shields.io/badge/Download%20At-Hangar-%23f29f22?style=for-the-badge">
     </a>    

@@ -1,0 +1,94 @@
+name: Build and Publish
+on:
+  push:
+    branches-ignore:
+      - main
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      jar: ${{ steps.artifact-upload.outputs.artifact-id }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v5
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 21
+          cache: gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+      - name: Build Snapshot
+        if: ${{ github.event_name == 'push' }}
+        run: ./gradlew build
+      - name: Build Release
+        if: ${{ github.event_name == 'release' }}
+        run: ./gradlew build -PreleaseBuild=true
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        id: artifact-upload
+        with:
+          name: build-output
+          path: build/libs/*.jar
+          if-no-files-found: 'error'
+
+  publish-snapshot:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v5
+        with:
+          artifact-ids: ${{ needs.build.outputs.jar }}
+          path: ./dist
+
+      - name: Determine Version
+        id: version-meta
+        run: |
+          echo "version=$(echo "$BASENAME" | sed -E 's/^[^-]+-(.+)\.jar$/\1/')" >> $GITHUB_OUTPUT
+
+      - name: Publish Snapshot to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          PROJECT_ID: 4dRudYCe
+          TITLE: "${{ steps.version-meta.outputs.version }}"
+          CHANGELOG: "Generated automatically from commit ${{ github.sha }}"
+          TYPE: "alpha"
+        run: |
+          chmod +x ./.github/workflows/publish-to-modrinth.sh
+          ./.github/workflows/publish-to-modrinth.sh
+
+
+      - name: Publish Snapshot to Hangar
+        env:
+          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
+          PROJECT_SLUG: 3265
+          TITLE: "${{ steps.version-meta.outputs.version }}"
+          DESCRIPTION: "Generated automatically from commit ${{ github.sha }}"
+          CHANNEL: "Snapshot"
+        run: |
+          chmod +x ./.github/workflows/publish-to-hangar.sh
+          ./.github/workflows/publish-to-hangar.sh
+  
+
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event_name == 'release' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v5
+        with:
+          artifact-ids: ${{ needs.build.outputs.jar }}
+          path: ./dist
+
+      - name: Publish Release
+        run: |
+          echo "Publishing release..."

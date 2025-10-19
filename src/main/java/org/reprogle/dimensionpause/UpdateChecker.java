@@ -5,28 +5,47 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Consumer;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 public record UpdateChecker(Plugin plugin, String link) {
+    // Reusable HTTP Client so we don't pay performance overhead and don't build new clients every time we need them
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
 
-	/**
-	 * Grabs the version number from the link provided
-	 *
-	 * @param consumer The consumer function
-	 */
-	public void getVersion(final Consumer<String> consumer) {
-		Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-			try (InputStream inputStream = new URL(this.link).openStream();
-				 Scanner scanner = new Scanner(inputStream)) {
-				if (scanner.hasNext()) {
-					consumer.accept(scanner.next());
-				}
-			} catch (IOException exception) {
-				plugin.getLogger().info("Unable to check for updates: " + exception.getMessage());
-			}
-		});
-	}
+    /**
+     * Grabs the version number from the link provided
+     *
+     * @param consumer The consumer function
+     */
+    public void getVersion(final Consumer<String> consumer) {
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(this.link))
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200 && !response.body().isEmpty()) {
+                    try (Scanner scanner = new Scanner(response.body())) {
+                        if (scanner.hasNext()) {
+                            consumer.accept(scanner.next());
+                        }
+                    }
+                } else {
+                    plugin.getLogger().info("Unable to check for updates: HTTP " + response.statusCode());
+                }
+            } catch (IOException | InterruptedException e) {
+                plugin.getLogger().info("Unable to check for updates: " + e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        });
+    }
 
 }
