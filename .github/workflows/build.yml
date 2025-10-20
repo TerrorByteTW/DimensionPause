@@ -59,7 +59,7 @@ jobs:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           PROJECT_ID: 4dRudYCe
           TITLE: "${{ steps.version-meta.outputs.version }}"
-          CHANGELOG: "Generated automatically from commit ${{ github.sha }}"
+          CHANGELOG: "Automated snapshot built from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. DO NOT USE IN PRODUCTION!"
           TYPE: "alpha"
         run: |
           chmod +x ./.github/workflows/publish-to-modrinth.sh
@@ -71,7 +71,7 @@ jobs:
           HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
           PROJECT_SLUG: 3265
           TITLE: "${{ steps.version-meta.outputs.version }}"
-          DESCRIPTION: "Generated automatically from commit ${{ github.sha }}"
+          DESCRIPTION: "Automated snapshot built from ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. DO NOT USE IN PRODUCTION!"
           CHANNEL: "Snapshot"
         run: |
           chmod +x ./.github/workflows/publish-to-hangar.sh
