@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.repository_owner == 'TerrorByteTW'
     outputs:
       jar: ${{ steps.artifact-upload.outputs.artifact-id }}
     steps:
