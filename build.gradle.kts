@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter
 plugins {
     java
     id("com.gradleup.shadow") version "9.2.2"
+    alias(libs.plugins.lombok);
 }
 
 project.group = "org.reprogle"
@@ -45,10 +46,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")
-    implementation("dev.dejvokep:boosted-yaml:1.3")
-    implementation("org.bstats:bstats-bukkit:3.0.2")
+    compileOnly(libs.paper.api)
+//    compileOnly(libs.folia.api)
+    compileOnly(libs.boosted.yaml)
+    implementation(libs.bstats)
+    compileOnly(libs.guice)
 }
 
 tasks.withType<JavaCompile> {
@@ -72,7 +74,6 @@ tasks.shadowJar {
     mergeServiceFiles()
     exclude("META-INF/*.MF")
 
-    relocate("dev.dejvokep.boostedyaml", "org.reprogle.dimensionpause.libs")
     relocate("org.bstats", "org.reprogle.dimensionpause.libs")
 }
 

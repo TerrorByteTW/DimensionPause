@@ -1,5 +1,6 @@
 package org.reprogle.dimensionpause.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,6 +17,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.reprogle.dimensionpause.DimensionState;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
 import java.util.HashSet;
@@ -24,13 +26,22 @@ import java.util.UUID;
 
 public class EntityPortalEnterEventListener implements Listener {
 
+    @Inject
+    ConfigManager configManager;
+    @Inject
+    CommandFeedback commandFeedback;
+    @Inject
+    DimensionState state;
+    @Inject
+    DimensionPausePlugin plugin;
+
     private final Set<UUID> playersBeingHandled = new HashSet<>();
 
     // Handler for nether portals
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onNetherPortalEnter(EntityPortalEnterEvent event) {
         // Check if the event is a player, if nether bounce-back option is enabled, and if the nether is currently paused
-        if (!(event.getEntity() instanceof Player p) || !ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bounce-back") || !DimensionPausePlugin.ds.getState(World.Environment.NETHER)) {
+        if (!(event.getEntity() instanceof Player p) || !configManager.getPluginConfig().getBoolean("dimensions.nether.bounce-back") || state.getState(p.getWorld(), World.Environment.NETHER).enabled()) {
             return;
         }
 
@@ -41,9 +52,11 @@ public class EntityPortalEnterEventListener implements Listener {
         }
 
         // If the player can bypass the environment, quit processing
-        if (DimensionPausePlugin.ds.canBypass(p, ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bypassable"))) {
+        if (state.canBypass(p, configManager.getPluginConfig().getBoolean("dimensions.nether.bypassable"))) {
             return;
         }
+
+        event.setCancelled(true);
 
         // Ensure this event is not already being handled
         if (playersBeingHandled.contains(p.getUniqueId())) {
@@ -82,21 +95,21 @@ public class EntityPortalEnterEventListener implements Listener {
         }
 
         // Delay the velocity and removal of the player from the set
-        DimensionPausePlugin.plugin.getServer().getScheduler().runTaskLater(DimensionPausePlugin.plugin, () -> {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 5, false, false));
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 200, 5, false, false));
             p.setVelocity(new Vector(newVecX, .7, newVecZ));
             playersBeingHandled.remove(p.getUniqueId());
         }, 1L); // 1 tick or 1/20 of a second
 
-        boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.alert.title.enabled");
-        boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.alert.chat.enabled");
+        boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions.nether.alert.title.enabled");
+        boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions.nether.alert.chat.enabled");
 
         if (sendTitle) {
-            p.showTitle(CommandFeedback.getTitleForDimension(World.Environment.NETHER));
+            p.showTitle(commandFeedback.getTitleForDimension(World.Environment.NETHER));
         }
 
         if (sendChat) {
-            p.sendMessage(CommandFeedback.getChatForDimension(World.Environment.NETHER));
+            p.sendMessage(commandFeedback.getChatForDimension(World.Environment.NETHER));
         }
     }
 
@@ -104,7 +117,7 @@ public class EntityPortalEnterEventListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEndPortalEnter(EntityPortalEnterEvent event) {
         // Check if the event is a player, if the end bounce-back option is enabled, and if the end is currently paused
-        if (!(event.getEntity() instanceof Player p) || !ConfigManager.getPluginConfig().getBoolean("dimensions.end.bounce-back") || !DimensionPausePlugin.ds.getState(World.Environment.THE_END)) {
+        if (!(event.getEntity() instanceof Player p) || !configManager.getPluginConfig().getBoolean("dimensions.end.bounce-back") || state.getState(p.getWorld(), World.Environment.THE_END).enabled()) {
             return;
         }
 
@@ -115,9 +128,11 @@ public class EntityPortalEnterEventListener implements Listener {
         }
 
         // If the player can bypass the environment, quit processing
-        if (DimensionPausePlugin.ds.canBypass(p, ConfigManager.getPluginConfig().getBoolean("dimensions.end.bypassable"))) {
+        if (state.canBypass(p, configManager.getPluginConfig().getBoolean("dimensions.end.bypassable"))) {
             return;
         }
+
+        event.setCancelled(true);
 
         // Ensure this event is not already being handled
         if (playersBeingHandled.contains(p.getUniqueId())) {
@@ -139,20 +154,20 @@ public class EntityPortalEnterEventListener implements Listener {
         p.setVelocity(knockbackDirection);
 
         // Delay the velocity and removal of the player from the set
-        DimensionPausePlugin.plugin.getServer().getScheduler().runTaskLater(DimensionPausePlugin.plugin, () -> {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 200, 5, false, false));
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 200, 5, false, false));
             playersBeingHandled.remove(p.getUniqueId());
         }, 5L); // 1 tick or 1/20 of a second
 
-        boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions.end.alert.title.enabled");
-        boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions.end.alert.chat.enabled");
+        boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions.end.alert.title.enabled");
+        boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions.end.alert.chat.enabled");
 
         if (sendTitle) {
-            p.showTitle(CommandFeedback.getTitleForDimension(World.Environment.THE_END));
+            p.showTitle(commandFeedback.getTitleForDimension(World.Environment.THE_END));
         }
 
         if (sendChat) {
-            p.sendMessage(CommandFeedback.getChatForDimension(World.Environment.THE_END));
+            p.sendMessage(commandFeedback.getChatForDimension(World.Environment.THE_END));
         }
     }
 
@@ -163,7 +178,7 @@ public class EntityPortalEnterEventListener implements Listener {
         if (!(event.getEntity() instanceof Player p)) return;
 
         if (playersBeingHandled.contains(p.getUniqueId())) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 10, 5, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 10, 5, false, false));
         }
     }
 

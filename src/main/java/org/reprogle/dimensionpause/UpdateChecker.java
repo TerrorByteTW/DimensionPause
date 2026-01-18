@@ -2,7 +2,6 @@ package org.reprogle.dimensionpause;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Consumer;
 
 import java.io.IOException;
 import java.net.URI;
@@ -10,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public record UpdateChecker(Plugin plugin, String link) {
     // Reusable HTTP Client so we don't pay performance overhead and don't build new clients every time we need them

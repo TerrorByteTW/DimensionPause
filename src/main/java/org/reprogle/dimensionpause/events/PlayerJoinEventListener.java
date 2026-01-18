@@ -1,28 +1,30 @@
 package org.reprogle.dimensionpause.events;
 
+import com.google.inject.Inject;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
 import org.reprogle.dimensionpause.DimensionState;
 
 public class PlayerJoinEventListener implements Listener {
+    @Inject
+    DimensionState state;
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public static void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         
-        if (!DimensionState.alertPlayers.contains(player.getUniqueId())) {
+        if (!state.alertPlayers.contains(player.getUniqueId())) {
             return;
         }
         
         World world = player.getWorld();
         
-        DimensionPausePlugin.ds.alertPlayer(player, world.getEnvironment());
-        DimensionState.alertPlayers.remove(player.getUniqueId());
+        state.alertPlayer(player, world.getEnvironment());
+        state.alertPlayers.remove(player.getUniqueId());
     }
 
 }

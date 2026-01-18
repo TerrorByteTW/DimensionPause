@@ -1,5 +1,6 @@
 package org.reprogle.dimensionpause.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.command.CommandSender;
 import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
@@ -10,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Reload implements SubCommand {
+	@Inject
+	ConfigManager configManager;
+	@Inject
+	CommandFeedback commandFeedback;
+
 	@Override
 	public String getName() {
 		return "reload";
@@ -18,13 +24,13 @@ public class Reload implements SubCommand {
 	@Override
 	public void perform(CommandSender sender, String[] args) {
 		try {
-		ConfigManager.getPluginConfig().reload();
-		ConfigManager.getPluginConfig().save();
+		configManager.getPluginConfig().reload();
+		configManager.getPluginConfig().save();
 
-		ConfigManager.getLanguageFile().reload();
-		ConfigManager.getLanguageFile().save();
+		configManager.getLanguageFile().reload();
+		configManager.getLanguageFile().save();
 
-		sender.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
+		sender.sendMessage(commandFeedback.sendCommandFeedback("reload", null, null));
 
 		} catch (IOException e) {
 			// Nothing

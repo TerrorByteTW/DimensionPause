@@ -1,5 +1,8 @@
 package org.reprogle.dimensionpause.commands.subcommands;
 
+import com.google.inject.Inject;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 import org.reprogle.dimensionpause.commands.SubCommand;
@@ -8,43 +11,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class State implements SubCommand {
-	@Override
-	public String getName() {
-		return "state";
-	}
+    @Inject
+    CommandFeedback commandFeedback;
 
-	@Override
-	public void perform(CommandSender sender, String[] args) {
-		if (args.length >= 2) {
-			switch (args[1].toLowerCase()) {
-				case "nether", "end" -> sender.sendMessage(CommandFeedback.sendCommandFeedback("state", args[1].toLowerCase()));
-				default -> sender.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
-			}
-		} else {
-			sender.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
-		}
-	}
+    @Override
+    public String getName() {
+        return "state";
+    }
 
-	@Override
-	public List<String> getSubcommands(CommandSender sender, String[] args) {
-		List<String> subcommands = new ArrayList<>();
+    @Override
+    public void perform(CommandSender sender, String[] args) {
+        if (args.length >= 3) {
+            String world = args[1];
+            String dimension = args[2].toLowerCase();
+            sender.sendMessage(commandFeedback.sendCommandFeedback("state", world, dimension));
+        } else {
+            sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));
+        }
+    }
 
-		// We are already in argument 1 of the command, hence why this is a subcommand
-		// class. Argument 2 is the
-		// subcommand for the subcommand,
-		// aka /dimensionpause state <THIS ONE>
+    @Override
+    public List<String> getSubcommands(CommandSender sender, String[] args) {
+        List<String> subcommands = new ArrayList<>();
 
-		if (args.length == 2) {
-			subcommands.add("nether");
-			subcommands.add("end");
-		}
-		return subcommands;
-	}
+        // We are already in argument 1 of the command, hence why this is a subcommand
+        // class. Argument 2 is the
+        // subcommand for the subcommand,
+        // aka /dimensionpause state <WORLD <- This arg> <dimension>
+        // Same with argument 3
+        // aka /dimensionpause state <world> <DIMENSION <- This arg>
 
-	@Override
-	public List<String> getRequiredPermissions() {
-		List<String> permissions = new ArrayList<>();
-		permissions.add("dimensionpause.state");
-		return permissions;
-	}
+        if (args.length == 2) {
+            Bukkit.getWorlds().forEach(world -> {
+                if (world.getEnvironment().equals(World.Environment.NORMAL))
+                    subcommands.add(world.getName());
+            });
+        } else if (args.length == 3) {
+            subcommands.add("nether");
+            subcommands.add("end");
+        }
+        return subcommands;
+    }
+
+    @Override
+    public List<String> getRequiredPermissions() {
+        List<String> permissions = new ArrayList<>();
+        permissions.add("dimensionpause.state");
+        return permissions;
+    }
 }

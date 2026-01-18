@@ -3,12 +3,16 @@ version: '@version@'
 main: org.reprogle.dimensionpause.DimensionPausePlugin
 api-version: '1.17'
 prefix: "DimensionPause"
+folia-supported: true
 authors: [TerrorByteTW]
 description: Allows you to pause dimensions to prevent players from entering them
 commands:
   dimensionpause:
     description: Allows you to control the DimensionPause plugin
     aliases: [ dp ]
+libraries:
+  - dev.dejvokep:boosted-yaml:1.3.7
+  - com.google.inject:guice:7.0.0
 
 permissions:
   dimensionpause.commands:
