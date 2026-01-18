@@ -1,13 +1,15 @@
 package org.reprogle.dimensionpause;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
-import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,132 +17,117 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
+import org.reprogle.dimensionpause.store.Database;
+import org.reprogle.dimensionpause.store.SQLite;
 
+@Singleton
 public class DimensionState {
 
-	public static final Set<UUID> alertPlayers = new HashSet<>();
+    public final Set<UUID> alertPlayers = new HashSet<>();
+    @Inject
+    private ConfigManager configManager;
+    @Inject
+    private DimensionPausePlugin plugin;
+    @Inject
+    private CommandFeedback commandFeedback;
+    @Inject
+    private SQLite db;
 
-	// Suppress ConstantValue warning for netherPause and endPaused, because that's not true due to #toggleDimension
-	public DimensionState(Plugin plugin) {
-		boolean netherState = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.paused");
-		boolean endState = ConfigManager.getPluginConfig().getBoolean("dimensions.end.paused");
+    public void toggleDimension(World world, World.Environment dimension, @Nullable LocalDate expirationTime) {
+        toggleDimension(world.getName(), dimension, expirationTime);
+    }
 
-		plugin.getLogger().info("The Nether is currently " + (netherState ? "paused" : "active") + " and the End is currently " + (endState ? "paused" : "active") + ".");
-		plugin.getLogger().info("You may change is at any time by running /dimensionpause toggle [end | nether] in-game\n");
-		plugin.getLogger().info("Disabling any dimension will teleport out players currently in that dimension. See config for more info");
-	}
+    public void toggleDimension(String world, World.Environment dimension, @Nullable LocalDate expirationTime) {
+        Collection<? extends Player> players = plugin.getServer().getOnlinePlayers();
 
-	public void toggleDimension(World.Environment dimension) {
-		Collection<? extends Player> players = DimensionPausePlugin.plugin.getServer().getOnlinePlayers();
+        boolean worldDimensionEnabled = db.isWorldEnabled(world, dimension).enabled();
+        db.setWorld(world, dimension, !worldDimensionEnabled, expirationTime);
 
-		boolean currentNetherState = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.paused");
-		boolean currentEndState = ConfigManager.getPluginConfig().getBoolean("dimensions.end.paused");
+        alertOfStateChange(players, world, dimension, !worldDimensionEnabled);
 
-		// This method requires a Dimension enum, and since there's only two, if it's not one then it's the other
-		if (dimension.equals(World.Environment.NETHER)) {
-			currentNetherState = !currentNetherState;
-			try {
-				ConfigManager.getPluginConfig().set("dimensions.nether.paused", currentNetherState);
-				ConfigManager.getPluginConfig().save();
-			} catch (IOException e) {
-				DimensionPausePlugin.plugin.getLogger().warning(CommandFeedback.sendCommandFeedback("io-exception").toString());
-			}
+        if (!worldDimensionEnabled) {
+            boolean bypassable = configManager.getPluginConfig().getBoolean("dimensions." + (dimension.equals(World.Environment.NETHER) ? "nether" : "end") + ".bypassable");
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                if (player.getWorld().getEnvironment().equals(dimension) && !canBypass(player, bypassable)) {
+                    kickToWorld(player, dimension, true);
+                }
+            }
+        }
+    }
 
-			alertOfStateChange(players, dimension, currentNetherState);
-		} else {
-			currentEndState = !currentEndState;
-			try {
-				ConfigManager.getPluginConfig().set("dimensions.end.paused", currentEndState);
-				ConfigManager.getPluginConfig().save();
-			} catch (IOException e) {
-				DimensionPausePlugin.plugin.getLogger().warning(CommandFeedback.sendCommandFeedback("io-exception").toString());
-			}
-			alertOfStateChange(players, dimension, currentEndState);
-		}
+    /**
+     * A helper method to kick a player to a world, OR to get the location of the place they'd be spawned at (In the case of Async events)
+     *
+     * @param player    The Player being kicked
+     * @param dimension The dimension the player was kicked FROM
+     * @param teleport  Whether to teleport the player once the respawn location is confirmed
+     * @return The Location the player was/will be teleported to
+     */
+    @Nullable
+    public Location kickToWorld(Player player, World.Environment dimension, boolean teleport) {
+        Location loc = player.getRespawnLocation();
 
-		if (currentNetherState) {
-			boolean bypassable = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bypassable");
-			for (Player player : DimensionPausePlugin.plugin.getServer().getOnlinePlayers()) {
-				if (player.getWorld().getEnvironment().equals(World.Environment.NETHER) && !canBypass(player, bypassable)) {
-					kickToWorld(player, dimension, true);
-				}
-			}
-		}
-		
-		if (currentEndState) {
-			boolean bypassable = ConfigManager.getPluginConfig().getBoolean("dimensions.end.bypassable");
-			for (Player player : DimensionPausePlugin.plugin.getServer().getOnlinePlayers()) {
-				if (player.getWorld().getEnvironment().equals(World.Environment.THE_END) && !canBypass(player, bypassable)) {
-					kickToWorld(player, dimension, true);
-				}
-			}
-		}
-	}
+        if (configManager.getPluginConfig().getBoolean("try-bed-first") && loc != null) {
+            if (teleport) player.teleportAsync(loc);
+        } else {
+            World world = Bukkit.getWorld(configManager.getPluginConfig().getString("kick-world"));
 
-	@Nullable
-	public Location kickToWorld(Player player, World.Environment dimension, boolean teleport) {
-		Location bedSpawn = player.getBedSpawnLocation();
-		Location loc;
+            // We can't teleport the player if the kick-world is invalid, so we must return null
+            if (world == null) {
+                plugin.getLogger().log(Level.WARNING, "IMPORTANT MESSAGE! A world has been paused, but at least one player is still in it ({0}). This player doesn't have a valid respawn location, and the kick-world configured in config was not obtainable, so we cannot teleport players out of the world. Please intervene!", player.getName());
+                return null;
+            }
 
-		if (ConfigManager.getPluginConfig().getBoolean("try-bed-first") && bedSpawn != null) {
-			if (teleport) player.teleport(bedSpawn);
-			loc = player.getBedSpawnLocation();
-		} else {
-			World world = Bukkit.getWorld(ConfigManager.getPluginConfig().getString("kick-world"));
-			if (world == null) {
-				DimensionPausePlugin.plugin.getLogger().log(Level.WARNING, "IMPORTANT MESSAGE! A world has been paused, but at least one player is still in it ( {0}). This player doesn''t have a bed, and the kick-world configured in config was not obtainable, so we cannot teleport players out of the world. Please intervene!", player.getName());
-				return null;
-			}
+            // Teleport the player asynchronously (Folia) to the kick-world's spawn
+            if (teleport) player.teleportAsync(world.getSpawnLocation());
+            loc = world.getSpawnLocation();
+        }
 
-			player.teleport(world.getSpawnLocation());
-			loc = world.getSpawnLocation();
-		}
+        // If we teleported the player, alert them
+        if (teleport) {
+            alertPlayer(player, dimension);
+        }
 
-		if (teleport) {
-			alertPlayer(player, dimension);
-		}
+        return loc;
+    }
 
-		return loc;
-	}
+    public Database.WorldPauseStatus getState(World world, World.Environment dimension) {
+        return getState(world.getName(), dimension);
+    }
 
-	public boolean getState(World.Environment dimension) {
-            return switch (dimension) {
-                case NETHER -> ConfigManager.getPluginConfig().getBoolean("dimensions.nether.paused");
-                case THE_END -> ConfigManager.getPluginConfig().getBoolean("dimensions.end.paused");
-                default -> false;
-            };
-	}
+    public Database.WorldPauseStatus getState(String world, World.Environment dimension) {
+        return db.isWorldEnabled(world, dimension);
+    }
 
-	public boolean canBypass(Player player, boolean bypassableFlag) {
-		if (player.isOp()) return true;
-		if (!bypassableFlag) return false;
-		return player.hasPermission("dimensionpause.bypass");
-	}
+    public boolean canBypass(Player player, boolean bypassableFlag) {
+        if (player.isOp()) return true;
+        if (!bypassableFlag) return false;
+        return player.hasPermission("dimensionpause.bypass");
+    }
 
-	public void alertPlayer(Player player, World.Environment dimension) {
-		String env = dimension.equals(World.Environment.NETHER) ? "nether" : "end";
-		boolean sendTitle = ConfigManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.title.enabled");
-		boolean sendChat = ConfigManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.chat.enabled");
-		
-		if (sendTitle) {
-			player.showTitle(CommandFeedback.getTitleForDimension(dimension));
-		}
-		
-		if (sendChat) {
-			player.sendMessage(CommandFeedback.getChatForDimension(dimension));
-		}
-	}
+    public void alertPlayer(Player player, World.Environment dimension) {
+        String env = dimension.equals(World.Environment.NETHER) ? "nether" : "end";
+        boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.title.enabled");
+        boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.chat.enabled");
 
-	private void alertOfStateChange(Collection<? extends Player> players, World.Environment environment, boolean newState) {
-		// Get a string value for the dimension. This is useful later on.
-		String env = environment.equals(World.Environment.NETHER) ? "nether" : "end";
+        if (sendTitle) {
+            player.showTitle(commandFeedback.getTitleForDimension(dimension));
+        }
 
-		if (!ConfigManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.on-toggle.enabled")) return;
+        if (sendChat) {
+            player.sendMessage(commandFeedback.getChatForDimension(dimension));
+        }
+    }
 
-		for (Player player : players) {
-			player.sendMessage(CommandFeedback.getToggleMessageForDimension(environment, newState));
-		}
+    private void alertOfStateChange(Collection<? extends Player> players, String world, World.Environment environment, boolean newState) {
+        // Get a string value for the dimension. This is useful later on.
+        String env = environment.equals(World.Environment.NETHER) ? "nether" : "end";
 
-	}
+        if (!configManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.on-toggle.enabled")) return;
 
+        for (Player player : players) {
+            player.sendMessage(commandFeedback.getToggleMessageForDimension(world, environment, newState));
+        }
+
+    }
 }

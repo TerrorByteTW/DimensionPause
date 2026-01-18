@@ -1,5 +1,7 @@
 package org.reprogle.dimensionpause.commands;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -9,25 +11,31 @@ import org.jetbrains.annotations.Nullable;
 import org.reprogle.dimensionpause.commands.subcommands.Reload;
 import org.reprogle.dimensionpause.commands.subcommands.State;
 import org.reprogle.dimensionpause.commands.subcommands.Toggle;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+@Singleton
 public class CommandManager implements TabExecutor {
 
-    private final ArrayList<SubCommand> subcommands = new ArrayList<>();
+    private final CommandFeedback commandFeedback;
 
-    public CommandManager() {
-        subcommands.add(new Toggle());
-        subcommands.add(new Reload());
-        subcommands.add(new State());
+    @Getter
+    @Inject
+    private Set<SubCommand> subcommands;
+
+    @Inject
+    public CommandManager(CommandFeedback commandFeedback) {
+        this.commandFeedback = commandFeedback;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
 
         if (!sender.hasPermission("dimensionpause.commands")) {
-            sender.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+            sender.sendMessage(commandFeedback.sendCommandFeedback("nopermission", null, null));
             return false;
         }
 
@@ -38,7 +46,7 @@ public class CommandManager implements TabExecutor {
             for (SubCommand subcommand : subcommands) {
                 if (args[0].equalsIgnoreCase(subcommand.getName())) {
                     if (!checkPermissions(sender, subcommand)) {
-                        sender.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+                        sender.sendMessage(commandFeedback.sendCommandFeedback("nopermission", null, null));
                         return false;
                     }
 
@@ -47,9 +55,9 @@ public class CommandManager implements TabExecutor {
                 }
             }
 
-            sender.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+            sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));
         } else {
-            sender.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+            sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));
         }
 
         return false;

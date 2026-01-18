@@ -1,21 +1,45 @@
 package org.reprogle.dimensionpause.events;
 
-import org.bukkit.plugin.Plugin;
+import com.google.inject.Inject;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
+import org.reprogle.dimensionpause.ConfigManager;
+import org.reprogle.dimensionpause.DimensionPausePlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListenerManager {
 
-	/**
-	 * Set's up all the listeners in the entire plugin
-	 *
-	 * @param plugin The Honeypot plugin instance
-	 */
-	public static void setupListeners(Plugin plugin) {
-		plugin.getServer().getPluginManager().registerEvents(new PlayerSpawnLocationEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PlayerTeleportEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PortalCreateEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new EntityPortalEnterEventListener(), plugin);
-	}
+    private final DimensionPausePlugin plugin;
+
+    @Inject
+    PlayerSpawnLocationEventListener playerSpawnLocationEventListener;
+    @Inject
+    PlayerJoinEventListener playerJoinEventListener;
+    @Inject
+    PlayerTeleportEventListener playerTeleportEventListener;
+    @Inject
+    PlayerInteractEventListener playerInteractEventListener;
+    @Inject
+    PortalCreateEventListener portalCreateEventListener;
+    @Inject
+    EntityPortalEnterEventListener entityPortalEnterEventListener;
+
+    @Inject
+    ListenerManager(DimensionPausePlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    /**
+     * Set's up all the listeners in the entire plugin
+     */
+    public void setupListeners() {
+        final List<Listener> listeners = new ArrayList<>(List.of(playerSpawnLocationEventListener,
+                playerJoinEventListener, playerTeleportEventListener, playerInteractEventListener,
+                portalCreateEventListener, entityPortalEnterEventListener));
+        PluginManager pm = plugin.getServer().getPluginManager();
+        listeners.forEach(event -> pm.registerEvents(event, plugin));
+    }
 
 }

@@ -1,5 +1,6 @@
 package org.reprogle.dimensionpause;
 
+import com.google.inject.Singleton;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@Singleton
 public class ConfigManager {
     private static YamlDocument config;
     private static YamlDocument languageFile;
@@ -26,7 +28,7 @@ public class ConfigManager {
      *
      * @param plugin The DimensionPause Plugin object
      */
-    public static void setupConfig(Plugin plugin) {
+    public void setupConfig(Plugin plugin) {
         plugin.getLogger().info("Attempting to load config files...");
         try {
             config = YamlDocument.create(new File(plugin.getDataFolder(), "config.yml"),
@@ -79,7 +81,7 @@ public class ConfigManager {
      *
      * @return The YamlDocument object
      */
-    public static YamlDocument getPluginConfig() {
+    public YamlDocument getPluginConfig() {
         return config;
     }
 
@@ -88,7 +90,7 @@ public class ConfigManager {
      *
      * @return The YamlDocument object
      */
-    public static YamlDocument getLanguageFile() {
+    public YamlDocument getLanguageFile() {
         return languageFile;
     }
 }

@@ -1,5 +1,6 @@
 package org.reprogle.dimensionpause.events;
 
+import com.google.inject.Inject;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,12 +8,16 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.reprogle.dimensionpause.ConfigManager;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.reprogle.dimensionpause.DimensionState;
 
 public class PlayerTeleportEventListener implements Listener {
+	@Inject
+	ConfigManager configManager;
+	@Inject
+	DimensionState state;
 
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public static void onPlayerTeleport(PlayerTeleportEvent event) {
+	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		// If the teleport is localized within the world, ignore the event
 		if (event.getFrom().getWorld().equals(event.getTo().getWorld())) {
 			return;
@@ -23,21 +28,21 @@ public class PlayerTeleportEventListener implements Listener {
 		if (env.equals(World.Environment.NORMAL)) return;
 
 		// Grab the bypassable values for the nether and end.
-		boolean netherBypass = ConfigManager.getPluginConfig().getBoolean("dimensions.nether.bypassable");
-		boolean endBypass = ConfigManager.getPluginConfig().getBoolean("dimensions.end.bypassable");
+		boolean netherBypass = configManager.getPluginConfig().getBoolean("dimensions.nether.bypassable");
+		boolean endBypass = configManager.getPluginConfig().getBoolean("dimensions.end.bypassable");
 
 		// If the environment the player is teleporting to is disabled, do the following
-		if (DimensionPausePlugin.ds.getState(env)) {
+		if (!state.getState(event.getTo().getWorld(), env).enabled()) {
 
 			// If the player can bypass the environment, quit processing
-			if (DimensionPausePlugin.ds.canBypass(p, env.equals(World.Environment.NETHER) ? netherBypass : endBypass))
+			if (state.canBypass(p, env.equals(World.Environment.NETHER) ? netherBypass : endBypass))
 				return;
 
 			// If the all of the above fail cancel the event
 			event.setCancelled(true);
 
 			// Send the player the proper title for the environment they tried to access
-			DimensionPausePlugin.ds.alertPlayer(p, env);
+			state.alertPlayer(p, env);
 		}
 	}
 
