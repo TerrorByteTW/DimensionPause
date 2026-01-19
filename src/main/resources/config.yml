@@ -1,5 +1,5 @@
 # This is the config version number. This will auto-increment each time a config update is done. DO NOT TOUCH THIS!!!!!
-file-version: 3
+file-version: 4
 
 ######################################################################
 #                    F O R M A T T I N G   N O T E S                 #
@@ -14,58 +14,40 @@ file-version: 3
 #                     P L U G I N   S E T T I N G S                  #
 ######################################################################
 
-# A list of dimensions. You may set these to be disabled or not, and also set them to be bypassable
-# If a dimension is not bypassable, only OPs may enter it, players with the bypass permission may not.
-# NOTE: The above also includes players with "*" permissions, such as server owners! You MUST be OP to bypass a non-bypassable world!
+# Configuration for the different dimension types. These settings apply to all dimensions regardless of world
+# Dimension pauses may be bypassed by granting the permission `dimensionpause.bypass.[world].[dimension]`
+# For example, to let players in to the `world` world's `nether` dimension, grant `dimensionpause.bypass.world.nether` to them
 dimensions:
   end:
-    paused: false
-    bypassable: true
     # Applies a bit of knockback velocity when a player tries to teleport
     bounce-back: true
     alert:
       # Allows you to alert players if they attempt to teleport to disabled worlds
-      title:
-        # Set if a title will be displayed if a player attempts to enter a disabled world
-        enabled: true
-        title: "Sorry, <light_purple>The End</light_purple> is currently <red>paused</red>!"
-        subtitle: "As a result, you may not enter <light_purple>The End</light_purple> or <light_purple>activate End Portals</light_purple>"
-      chat:
-        # Set if a chat message will be sent to the player if they attempt to enter a disabled world
-        enabled: false
-        message: "YOU SHALL NOT PASS"
-      on-toggle:
-        # Alert players when the dimension is toggled. This will always be a chat message. Use %state% to display the current state of the dimension.
-        enabled: true
-        message: "Attention! <light_purple>The End</light_purple> has been %state%!"
+      # To change the messages used, edit the language file
+      title: true
+      chat: false
+      on-toggle: true
   nether:
-    paused: false
-    bypassable: true
     # Applies a bit of knockback velocity when a player tries to teleport
     bounce-back: true
     alert:
       # Allows you to alert players if they attempt to teleport to disabled worlds
-      title:
-        # Set if a title will be displayed if a player attempts to enter a disabled world
-        enabled: true
-        title: "Sorry, <red>The Nether</red> is currently <red>paused</red>!"
-        subtitle: "As a result, you may not enter <red>The Nether</red> or <red>activate Nether Portals</red>"
-      chat:
-        # Set if a chat message will be sent to the player if they attempt to enter a disabled world
-        enabled: false
-        message: "YOU SHALL NOT PASS"
-      on-toggle:
-        # Alert players when the dimension is toggled. This will always be a chat message. Use %state% to display the current state of the dimension.
-        enabled: true
-        message: "Attention! <red>The Nether</red> has been %state%!"
+      # To change the messages used, edit the language file
+      title: true
+      chat: false
+      on-toggle: true
 
 
 # The name of the world you want to kick players to if they are currently in a dimension when it's paused.
-# If a player attempts to teleport to a paused dimension, they'll be teleported back to their previous world's spawn point. This value is ignored in that scenario
+# If a player attempts to teleport to a paused dimension, the teleport will be blocked. This value is ignored in that scenario
 kick-world: "world"
 
 # If we should try to teleport them to their bed first
 try-bed-first: true
+
+# If a player joins the server and spawned in a disabled world, a countdown will start for the player
+# This is how many SECONDS the countdown will be before the player is teleported out
+on-join-kick-delay: 5
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #

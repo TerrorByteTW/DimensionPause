@@ -9,6 +9,7 @@ import org.reprogle.dimensionpause.commands.SubCommand;
 import org.reprogle.dimensionpause.commands.subcommands.Reload;
 import org.reprogle.dimensionpause.commands.subcommands.State;
 import org.reprogle.dimensionpause.commands.subcommands.Toggle;
+import org.reprogle.dimensionpause.utils.ConfigManager;
 
 public class DimensionPauseModule extends AbstractModule {
     private final DimensionPausePlugin plugin;

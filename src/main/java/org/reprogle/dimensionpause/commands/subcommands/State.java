@@ -22,7 +22,13 @@ public class State implements SubCommand {
     @Override
     public void perform(CommandSender sender, String[] args) {
         if (args.length >= 3) {
-            String world = args[1];
+            World world = Bukkit.getWorld(args[1]);
+
+            if (world == null) {
+                sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));
+                return;
+            }
+
             String dimension = args[2].toLowerCase();
             sender.sendMessage(commandFeedback.sendCommandFeedback("state", world, dimension));
         } else {

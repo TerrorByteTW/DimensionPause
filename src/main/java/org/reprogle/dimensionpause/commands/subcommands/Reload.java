@@ -2,9 +2,10 @@ package org.reprogle.dimensionpause.commands.subcommands;
 
 import com.google.inject.Inject;
 import org.bukkit.command.CommandSender;
-import org.reprogle.dimensionpause.ConfigManager;
+import org.reprogle.dimensionpause.utils.ConfigManager;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 import org.reprogle.dimensionpause.commands.SubCommand;
+import org.reprogle.dimensionpause.utils.DimensionExpirationTimer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ public class Reload implements SubCommand {
 	ConfigManager configManager;
 	@Inject
 	CommandFeedback commandFeedback;
+	@Inject
+	DimensionExpirationTimer timer;
 
 	@Override
 	public String getName() {
@@ -29,6 +32,8 @@ public class Reload implements SubCommand {
 
 		configManager.getLanguageFile().reload();
 		configManager.getLanguageFile().save();
+
+		timer.refresh();
 
 		sender.sendMessage(commandFeedback.sendCommandFeedback("reload", null, null));
 

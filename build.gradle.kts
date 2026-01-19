@@ -12,7 +12,7 @@ plugins {
 }
 
 project.group = "org.reprogle"
-project.version = "1.2.0"
+project.version = "2.0.0"
 project.description = "Allows you to pause dimensions to prevent players from entering them"
 
 val isReleaseBuild = project.hasProperty("releaseBuild")
