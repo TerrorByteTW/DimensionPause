@@ -1,20 +1,58 @@
 # This is the version of the language file. If new translations are added, this will automatically update. DO NOT TOUCH THIS!!!!!
 language-version: 4
 
-# Language configs for this plugin use MiniMessage. If you need to know how to use MiniMessage, click the link below!
-# https://docs.advntr.dev/minimessage/format.html#standard-tags
+# Language configs for this plugin use MiniMessage. If you need to know how to use MiniMessage, click this link: https://docs.advntr.dev/minimessage/format.html#standard-tags
+# The below messages support three types of MiniMessage placeholders:
+# <world> - The world which owns the dimension
+# <state> - The state of the world, or what it was changed to
+# <prefix> - The prefix for the chat message
+# Not all messages support the <world>, <state>, or <prefix> type, and these tags are not supported on Titles whatsoever
+# Refer to the comments above each section for formatting guidelines
+# Using the <world> and/or <state> tag in messages that don't support them WILL yield unexpected results
+
 prefix: "<dark_gray>[<gold>DimensionPause<dark_gray>]<reset>"
-unknown-error: "An error occurred while performing that command"
-reload: "Dimension Pause config has been reloaded!"
-io-exception: "<red>An error occurred while saving the config file</red>. Dimension state changes in-game will still work, but they may be reset upon reload or restart."
-no-permission: "Sorry, you don't have permission to run this command."
+unknown-error: "<prefix> An error occurred while performing that command"
+reload: "<prefix> Dimension Pause config has been reloaded!"
+io-exception: "<prefix> <red>An error occurred while saving changes</red>. If not resolved, dimension state changes cannot be made, and paused dimensions cannot be unpaused"
+no-permission: "<prefix> Sorry, you don't have permission to run this command."
+
+# Toggles are used when a world/dimension state is changed (Such as with /dp toggle). These are only sent to whoever changed the state, such as Console or a staff member.
+# Automated changes, such as if the world was temporarily paused, do not generate toggle messages
+# Supported placeholders: <prefix>, <state>, <world> (World and state are not supported on the default message)
 toggled:
-  nether: "<red>The Nether</red> has been "
-  end: "<light_purple>The End</light_purple> has been "
-  default: "The dimension has been toggled!"
+  nether: "<prefix> <red>The Nether</red> has been <state> for world <world>"
+  end: "<prefix> <light_purple>The End</light_purple> has been <state>"
+  default: "<prefix> The dimension has been toggled!"
+
+# States are used when the state of a world/dimension is checked (Such as with /dp state)
+# state.paused and state.unpaused are also special in that these are the values that will be used whenever <state> is used
+# state.nether and state.end support the <state>, <world>, and <prefix> tags. Please do not use any tags on the other messages
 state:
-  nether: "<red>The Nether</red> is currently "
-  end: "<light_purple>The End</light_purple> is currently "
-  paused: "<red>paused</red> "
-  unpaused: "<green>unpaused</green> "
-  until: "until "
+  nether: "<prefix> <red>The Nether</red> is currently <state>"
+  end: "<prefix> <light_purple>The End</light_purple> is currently <state>"
+  paused: "<red>paused</red>"
+  unpaused: "<green>unpaused</green>"
+  until: "until"
+
+# Alerts are used to tell players that a dimension is paused when it's toggled or when they attempt to enter it
+# alert.[dimension].chat and alert.[dimension].on-toggle support <prefix>, <world>, and <state> tags
+alert:
+  nether:
+    title:
+      title: "Sorry, <red>The Nether</red> is currently <red>paused</red>!"
+      subtitle: "As a result, you may not enter <red>The Nether</red> or <red>activate Nether Portals</red>"
+    chat: "<prefix> YOU SHALL NOT PASS"
+    on-toggle: "<prefix> Attention! <red>The Nether</red> has been <state>!"
+  end:
+    title:
+      title: "Sorry, <light_purple>The End</light_purple> is currently <red>paused</red>!"
+      subtitle: "As a result, you may not enter <light_purple>The End</light_purple> or <light_purple>activate End Portals</light_purple>"
+    chat: "<prefix> YOU SHALL NOT PASS"
+    on-toggle: "<prefix> Attention! <light_purple>The End</light_purple> has been <state>!"
+
+# Preteleport is used when a player joins a paused world, and we must teleport them out. These messages are given to the player prior to teleporting. This only supports titles
+# This section does not support tags at all
+preteleport:
+  title: "This dimension is <red>paused</red>!"
+  # Subtitle will have the number of seconds appended to the end of it
+  subtitle: "Teleporting away in"

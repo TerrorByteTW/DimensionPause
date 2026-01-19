@@ -1,4 +1,4 @@
-package org.reprogle.dimensionpause;
+package org.reprogle.dimensionpause.utils;
 
 import com.google.inject.Singleton;
 import dev.dejvokep.boostedyaml.YamlDocument;

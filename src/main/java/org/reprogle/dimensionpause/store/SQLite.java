@@ -2,7 +2,6 @@ package org.reprogle.dimensionpause.store;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import net.kyori.adventure.text.Component;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
 import org.reprogle.dimensionpause.store.patches.SQLitePatch;
 
@@ -27,7 +26,7 @@ public class SQLite extends Database {
             "`dimension` VARCHAR NOT NULL," +
             "`enabled` INTEGER NOT NULL," +
             "`updatedAt` DATE NOT NULL," +
-            "`expiresAt` DATE NULL," +
+            "`expiresAt` BIGINT NULL," +
             "PRIMARY KEY (`world`, `dimension`)" +
             ")";
 

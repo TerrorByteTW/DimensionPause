@@ -21,9 +21,6 @@ permissions:
   dimensionpause.toggle:
     description: Allows a player to change the state of a dimension
     default: op
-  dimensionpause.bypass:
-    description: Allows a player to bypass
-    default: op
   dimensionpause.reload:
     description: Reloads all configuration files, including translation files
     default: op
@@ -35,7 +32,6 @@ permissions:
     default: op
     children:
       dimensionpause.commands: true
-      dimensionpause.bypass: true
       dimensionpause.toggle: true
       dimensionpause.reload: true
       dimensionpause.state: true

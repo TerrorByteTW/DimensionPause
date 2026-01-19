@@ -3,7 +3,6 @@ package org.reprogle.dimensionpause.events;
 import com.google.inject.Inject;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
-import org.reprogle.dimensionpause.ConfigManager;
 import org.reprogle.dimensionpause.DimensionPausePlugin;
 
 import java.util.ArrayList;
@@ -14,8 +13,6 @@ public class ListenerManager {
     private final DimensionPausePlugin plugin;
 
     @Inject
-    PlayerSpawnLocationEventListener playerSpawnLocationEventListener;
-    @Inject
     PlayerJoinEventListener playerJoinEventListener;
     @Inject
     PlayerTeleportEventListener playerTeleportEventListener;
@@ -24,7 +21,7 @@ public class ListenerManager {
     @Inject
     PortalCreateEventListener portalCreateEventListener;
     @Inject
-    EntityPortalEnterEventListener entityPortalEnterEventListener;
+    PlayerPortalEventListener playerPortalEventListener;
 
     @Inject
     ListenerManager(DimensionPausePlugin plugin) {
@@ -35,10 +32,13 @@ public class ListenerManager {
      * Set's up all the listeners in the entire plugin
      */
     public void setupListeners() {
-        final List<Listener> listeners = new ArrayList<>(List.of(playerSpawnLocationEventListener,
-                playerJoinEventListener, playerTeleportEventListener, playerInteractEventListener,
-                portalCreateEventListener, entityPortalEnterEventListener));
         PluginManager pm = plugin.getServer().getPluginManager();
+        final List<Listener> listeners = new ArrayList<>(List.of(
+                playerJoinEventListener,
+                playerTeleportEventListener,
+                playerInteractEventListener,
+                portalCreateEventListener,
+                playerPortalEventListener));
         listeners.forEach(event -> pm.registerEvents(event, plugin));
     }
 
