@@ -2,72 +2,40 @@ package org.reprogle.dimensionpause;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import lombok.Getter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.dimensionpause.commands.CommandManager;
-import org.reprogle.dimensionpause.events.ListenerManager;
-import org.reprogle.dimensionpause.utils.ConfigManager;
-import org.reprogle.dimensionpause.utils.DimensionExpirationTimer;
+import com.google.inject.Module;
+import io.papermc.paper.plugin.configuration.PluginMeta;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.reprogle.bytelib.ByteLibPlugin;
+import org.reprogle.bytelib.db.sqlite.SqliteModule;
+import org.reprogle.bytelib.boot.wiring.PluginWiring;
 
-public final class DimensionPausePlugin extends JavaPlugin {
-    @Inject
-    ListenerManager listenerManager;
-    @Inject
-    CommandManager commandManager;
-    @Inject
-    DimensionExpirationTimer timer;
+import java.nio.file.Path;
+import java.util.List;
 
-    @Getter
-    private Injector injector;
+public final class DimensionPausePlugin extends ByteLibPlugin {
 
-    @Override
-    public void onLoad() {
-        ConfigManager configManager = new ConfigManager();
-        DimensionPauseModule module = new DimensionPauseModule(this, configManager);
-        injector = module.createInjector();
-        injector.injectMembers(this);
+    @Inject
+    public DimensionPausePlugin(Injector injector, PluginMeta meta, Path dataDir, ComponentLogger logger) {
+        super(injector, meta, dataDir, logger);
     }
 
-    @Override
-    public void onEnable() {
-        new DPMetrics(this);
-
-        getCommand("dimensionpause").setExecutor(this.commandManager);
-        listenerManager.setupListeners();
-
-        getLogger().info("Dimension Pause has been loaded");
-
-        if (this.getDescription().getVersion().contains("SNAPSHOT")) {
-            Component updateMessage = Component.text("You are running a SNAPSHOT version of DimensionPause. Support will not be provided!", NamedTextColor.RED);
-
-            getServer().getConsoleSender().sendMessage(updateMessage);
-        } else {
-            new UpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/DimensionPause/master/version.txt").getVersion(latest -> {
-                if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
-                    getServer().getConsoleSender().sendMessage(Component.text("There is a new update available for DimensionPause: " + latest + ". Please download for the latest features and security updates!", NamedTextColor.RED));
-                } else {
-                    getServer().getConsoleSender().sendMessage(Component.text("You are on the latest version of DimensionPause!", NamedTextColor.GREEN));
-                }
-            });
+    /*
+     * Modules are loaded in one of three ways by ByteLib:
+     * 1. Checking the main class and finding a class with "Wiring" appended to it (DimensionPausePlugin.class > DimensionPausePluginWiring.class)
+     * 2. Checking if the main class has a nested Wiring class in it (DimensionPausePlugin$Wiring.class)
+     * 3. Using the ServiceLoader to check for classes implementing PluginWiring
+     *
+     * DimensionPause's Guice modules are wired via method 2 for cleanliness
+     * Unused warnings are suppressed since these classes are always referenced via reflection
+     */
+    @SuppressWarnings("unused")
+    public static class Wiring implements PluginWiring {
+        @Override
+        public List<Module> modules(PluginMeta meta, Path dataDir, ComponentLogger logger) {
+            return List.of(
+                    new DimensionPauseModule(),
+                    new SqliteModule("dimensionpause.db")
+            );
         }
-
-        if (isFolia()) {
-            getServer().getConsoleSender().sendMessage(
-                    Component.text("Welcome to Folia!!!! It is assumed you know what you're doing, since Folia is not yet standard. While DimensionPause can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
-        }
-
-        timer.refresh();
-    }
-
-    @Override
-    public void onDisable() {
-        getLogger().info("Dimension Pause is shutting down");
-    }
-
-    private boolean isFolia() {
-        return Bukkit.getServer().getName().startsWith("Folia");
     }
 }

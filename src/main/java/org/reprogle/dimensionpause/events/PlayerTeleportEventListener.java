@@ -9,7 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.dimensionpause.utils.DimensionState;
 import org.reprogle.dimensionpause.utils.WorldUtils;
 
@@ -17,7 +17,7 @@ public class PlayerTeleportEventListener implements Listener {
     @Inject
     DimensionState state;
     @Inject
-    DimensionPausePlugin plugin;
+    JavaPlugin plugin;
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerTeleport(PlayerTeleportEvent event) {

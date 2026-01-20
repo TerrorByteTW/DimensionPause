@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.PortalCreateEvent;
-import org.reprogle.dimensionpause.utils.ConfigManager;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.dimensionpause.utils.DimensionState;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
@@ -15,7 +15,7 @@ public class PortalCreateEventListener implements Listener {
 	@Inject
 	DimensionState state;
 	@Inject
-	ConfigManager configManager;
+	BytePluginConfig config;
 	@Inject
 	CommandFeedback commandFeedback;
 
@@ -41,8 +41,8 @@ public class PortalCreateEventListener implements Listener {
 				event.setCancelled(true);
 
 				// Send the player the Nether title and chat messages, if configured
-				boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions.nether.alert.title");
-				boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions.nether.alert.chat");
+				boolean sendTitle = config.config().getBoolean("dimensions.nether.alert.title");
+				boolean sendChat = config.config().getBoolean("dimensions.nether.alert.chat");
 
 				if (sendTitle) {
 					p.showTitle(commandFeedback.getTitleForDimension(World.Environment.NETHER));

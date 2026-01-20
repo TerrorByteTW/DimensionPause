@@ -5,8 +5,8 @@ import com.google.inject.Singleton;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
-import org.reprogle.dimensionpause.store.Database;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.dimensionpause.store.TrackedWorldsRepository;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,7 +22,7 @@ public class DimensionExpirationTimer {
     DimensionState state;
 
     @Inject
-    DimensionPausePlugin plugin;
+    JavaPlugin plugin;
 
     public void refresh() {
         expirations.clear();
@@ -41,7 +41,7 @@ public class DimensionExpirationTimer {
 
         for (World base : bases) {
             for (World.Environment env : new World.Environment[]{World.Environment.NETHER, World.Environment.THE_END}) {
-                Database.WorldPauseStatus status = state.getState(base, env);
+                TrackedWorldsRepository.WorldPauseStatus status = state.getState(base, env);
                 Instant exp = status.expiresAt();
                 if (exp != null && exp.isAfter(now) && !status.enabled()) {
                     plugin.getLogger().info("Monitoring world pause expiration for world: " + base.getName() + " " + env);

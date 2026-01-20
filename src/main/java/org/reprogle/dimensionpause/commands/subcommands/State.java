@@ -23,13 +23,13 @@ public class State implements SubCommand {
     public void perform(CommandSender sender, String[] args) {
         if (args.length >= 3) {
             World world = Bukkit.getWorld(args[1]);
+            String dimension = args[2].toLowerCase();
 
-            if (world == null) {
+            if (world == null || (!dimension.equals("nether") && !dimension.equals("end"))) {
                 sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));
                 return;
             }
 
-            String dimension = args[2].toLowerCase();
             sender.sendMessage(commandFeedback.sendCommandFeedback("state", world, dimension));
         } else {
             sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));

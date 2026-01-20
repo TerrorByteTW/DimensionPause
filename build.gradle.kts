@@ -51,6 +51,7 @@ dependencies {
     compileOnly(libs.boosted.yaml)
     implementation(libs.bstats)
     compileOnly(libs.guice)
+    implementation(files("V:\\Development Projects\\ByteLib\\build\\libs\\ByteLib-1.0.jar"))
 }
 
 tasks.withType<JavaCompile> {

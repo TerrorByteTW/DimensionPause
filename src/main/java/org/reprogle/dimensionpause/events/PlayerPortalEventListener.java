@@ -11,14 +11,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
-import org.reprogle.dimensionpause.utils.ConfigManager;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
+import org.reprogle.dimensionpause.store.TrackedWorldsRepository;
 import org.reprogle.dimensionpause.utils.DimensionState;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
-import org.reprogle.dimensionpause.store.Database;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,13 +27,13 @@ import java.util.UUID;
 public class PlayerPortalEventListener implements Listener {
 
     @Inject
-    ConfigManager configManager;
+    BytePluginConfig config;
     @Inject
     CommandFeedback commandFeedback;
     @Inject
     DimensionState state;
     @Inject
-    DimensionPausePlugin plugin;
+    JavaPlugin plugin;
 
     private final Set<UUID> playersBeingHandled = new HashSet<>();
 
@@ -47,14 +47,14 @@ public class PlayerPortalEventListener implements Listener {
 
         World.Environment environmentTo = event.getTo().getWorld().getEnvironment();
         String stringifiedEnv = environmentTo == World.Environment.NETHER ? "nether" : "end";
-        Database.WorldPauseStatus status = state.getState(player.getWorld(), environmentTo);
+        TrackedWorldsRepository.WorldPauseStatus status = state.getState(player.getWorld(), environmentTo);
         if (status.enabled()) return;
         if (state.canBypass(player, player.getWorld(), environmentTo)) return;
 
         event.setCancelled(true);
 
         // Apply the corresponding "bounce-back" effect depending on the environment (Nether portals are vertical, End Portals are horizontal, so they require different math)
-        if (configManager.getPluginConfig().getBoolean("dimensions." + stringifiedEnv + ".bounce-back")) {
+        if (config.config().getBoolean("dimensions." + stringifiedEnv + ".bounce-back")) {
             switch (environmentTo) {
                 case NETHER -> netherBounceback(player, event.getFrom());
                 case THE_END -> endBounceback(player);
@@ -64,8 +64,8 @@ public class PlayerPortalEventListener implements Listener {
             }
         }
 
-        boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions." + stringifiedEnv + ".alert.title");
-        boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions." + stringifiedEnv + ".alert.chat");
+        boolean sendTitle = config.config().getBoolean("dimensions." + stringifiedEnv + ".alert.title");
+        boolean sendChat = config.config().getBoolean("dimensions." + stringifiedEnv + ".alert.chat");
 
         if (sendTitle) {
             player.showTitle(commandFeedback.getTitleForDimension(environmentTo));

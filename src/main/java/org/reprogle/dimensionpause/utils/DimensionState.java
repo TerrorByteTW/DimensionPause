@@ -5,8 +5,9 @@ import com.google.inject.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
 import java.time.Instant;
@@ -14,20 +15,19 @@ import java.util.Collection;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
-import org.reprogle.dimensionpause.store.Database;
-import org.reprogle.dimensionpause.store.SQLite;
+import org.reprogle.dimensionpause.store.TrackedWorldsRepository;
 
 @Singleton
 public class DimensionState {
 
     @Inject
-    private ConfigManager configManager;
+    private BytePluginConfig config;
     @Inject
-    private DimensionPausePlugin plugin;
+    private JavaPlugin plugin;
     @Inject
     private CommandFeedback commandFeedback;
     @Inject
-    private SQLite db;
+    private TrackedWorldsRepository repo;
     @Inject
     DimensionExpirationTimer timer;
 
@@ -78,13 +78,11 @@ public class DimensionState {
         boolean worldDimensionEnabled;
 
         switch (state) {
-            case DISABLED ->
-                    worldDimensionEnabled = db.setWorld(worldName, dimension, false, expirationTime).enabled();
-            case ENABLED ->
-                    worldDimensionEnabled = db.setWorld(worldName, dimension, true, expirationTime).enabled();
+            case DISABLED -> worldDimensionEnabled = repo.setWorld(worldName, dimension, false, expirationTime).enabled();
+            case ENABLED -> worldDimensionEnabled = repo.setWorld(worldName, dimension, true, expirationTime).enabled();
             default -> {
-                worldDimensionEnabled = db.isWorldEnabled(worldName, dimension).enabled();
-                worldDimensionEnabled = db.setWorld(worldName, dimension, !worldDimensionEnabled, expirationTime).enabled();
+                worldDimensionEnabled = repo.isWorldEnabled(worldName, dimension).enabled();
+                worldDimensionEnabled = repo.setWorld(worldName, dimension, !worldDimensionEnabled, expirationTime).enabled();
             }
         }
 
@@ -110,10 +108,10 @@ public class DimensionState {
     public void kickToWorld(Player player, World.Environment dimension) {
         Location loc = player.getRespawnLocation();
 
-        if (configManager.getPluginConfig().getBoolean("try-bed-first") && loc != null) {
+        if (config.config().getBoolean("try-bed-first") && loc != null) {
             player.teleportAsync(loc);
         } else {
-            World world = Bukkit.getWorld(configManager.getPluginConfig().getString("kick-world"));
+            World world = Bukkit.getWorld(config.config().getString("kick-world"));
 
             // We can't teleport the player if the kick-world is invalid, so we must return null
             if (world == null) {
@@ -135,10 +133,10 @@ public class DimensionState {
      *
      * @param world     The world to check
      * @param dimension The dimension of the world to check
-     * @return A {@link Database.WorldPauseStatus} record containing whether the world is enabled, and its expiration time if applicable.
+     * @return A {@link TrackedWorldsRepository.WorldPauseStatus} record containing whether the world is enabled, and its expiration time if applicable.
      * Will always return false if a world or world's dimension doesn't exist or isn't in the DB
      */
-    public Database.WorldPauseStatus getState(World world, World.Environment dimension) {
+    public TrackedWorldsRepository.WorldPauseStatus getState(World world, World.Environment dimension) {
         return getState(world.getName(), dimension);
     }
 
@@ -147,11 +145,11 @@ public class DimensionState {
      *
      * @param world     The world name to check
      * @param dimension The dimension of the world to check
-     * @return A {@link Database.WorldPauseStatus} record containing whether the world is enabled, and its expiration time if applicable.
+     * @return A {@link TrackedWorldsRepository.WorldPauseStatus} record containing whether the world is enabled, and its expiration time if applicable.
      * Will always return false if a world or world's dimension doesn't exist or isn't in the DB
      */
-    public Database.WorldPauseStatus getState(String world, World.Environment dimension) {
-        return db.isWorldEnabled(world, dimension);
+    public TrackedWorldsRepository.WorldPauseStatus getState(String world, World.Environment dimension) {
+        return repo.isWorldEnabled(world, dimension);
     }
 
     /**
@@ -176,8 +174,8 @@ public class DimensionState {
      */
     public void alertPlayer(Player player, World.Environment dimension) {
         String env = dimension.equals(World.Environment.NETHER) ? "nether" : "end";
-        boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.title");
-        boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.chat");
+        boolean sendTitle = config.config().getBoolean("dimensions." + env + ".alert.title");
+        boolean sendChat = config.config().getBoolean("dimensions." + env + ".alert.chat");
 
         if (sendTitle) {
             player.showTitle(commandFeedback.getTitleForDimension(dimension));
@@ -200,7 +198,7 @@ public class DimensionState {
         // Get a string value for the dimension. This is useful later on.
         String env = environment.equals(World.Environment.NETHER) ? "nether" : "end";
 
-        if (!configManager.getPluginConfig().getBoolean("dimensions." + env + ".alert.on-toggle")) return;
+        if (!config.config().getBoolean("dimensions." + env + ".alert.on-toggle")) return;
 
         for (Player player : players) {
             player.sendMessage(commandFeedback.getStateChangedMessage(world, environment, newState));

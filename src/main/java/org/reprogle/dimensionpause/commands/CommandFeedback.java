@@ -1,17 +1,16 @@
 package org.reprogle.dimensionpause.commands;
 
 import com.google.inject.Inject;
-import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.title.Title;
 import org.bukkit.World;
-import org.reprogle.dimensionpause.utils.ConfigManager;
+import org.reprogle.bytelib.config.Translator;
+import org.reprogle.dimensionpause.store.TrackedWorldsRepository;
 import org.reprogle.dimensionpause.utils.DimensionState;
-import org.reprogle.dimensionpause.store.Database;
 
 import javax.annotation.Nullable;
 import java.time.Duration;
@@ -20,12 +19,10 @@ import java.time.format.DateTimeFormatter;
 
 public class CommandFeedback {
 
-    public static final MiniMessage mm = MiniMessage.miniMessage();
-
     @Inject
-    private ConfigManager configManager;
+    Translator translator;
     @Inject
-    private DimensionState state;
+    DimensionState state;
 
     /**
      * A helper class which helps to reduce boilerplate player.sendMessage code by providing the strings to send instead
@@ -36,16 +33,15 @@ public class CommandFeedback {
      */
     public Component sendCommandFeedback(String feedback, @Nullable World world, @Nullable String dimension) {
         Component feedbackMessage;
-        YamlDocument languageFile = configManager.getLanguageFile();
         World.Environment environment = null;
         if (dimension != null && (dimension.equalsIgnoreCase("end") || dimension.equalsIgnoreCase("nether")))
             environment = (dimension.equalsIgnoreCase("nether") ? World.Environment.NETHER : World.Environment.THE_END);
 
-        final Component untilComponent = mm.deserialize(languageFile.getString("state.until"));
+        final Component untilComponent = translator.tr("state.until");
 
         switch (feedback.toLowerCase()) {
             case "usage" -> {
-                final Component prefixComponent = mm.deserialize(languageFile.getString("state.until"));
+                final Component prefixComponent = translator.tr("prefix");
                 feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
                         .append(prefixComponent).append(Component.text(" "))
                         .append(Component.text("Need help?\n \n", NamedTextColor.WHITE))
@@ -55,16 +51,18 @@ public class CommandFeedback {
                         .append(Component.text("-----------------------", NamedTextColor.WHITE))
                         .build();
             }
-            case "nopermission" -> feedbackMessage = deserialize(languageFile.getString("no-permission"), false, null);
-            case "reload" -> feedbackMessage = deserialize(languageFile.getString("reload"), false, null);
-            case "io-exception" -> feedbackMessage = deserialize(languageFile.getString("io-exception"), false, null);
+            case "nopermission" ->
+                    feedbackMessage = translator.tr("no-permission", stateResolver(false), worldResolver(null));
+            case "reload" -> feedbackMessage = translator.tr("reload", stateResolver(false), worldResolver(null));
+            case "io-exception" ->
+                    feedbackMessage = translator.tr("io-exception", stateResolver(false), worldResolver(null));
             case "newstate" -> {
                 if (environment == null || world == null) {
-                    feedbackMessage = deserialize(languageFile.getString("toggled.default"), false, null);
+                    feedbackMessage = translator.tr("toggled.default", stateResolver(false), worldResolver(null));
                 } else {
-                    Database.WorldPauseStatus worldState = state.getState(world, environment);
+                    TrackedWorldsRepository.WorldPauseStatus worldState = state.getState(world, environment);
 
-                    TextComponent.Builder builder = Component.text().append(deserialize(languageFile.getString("toggled." + dimension), worldState.enabled(), world.getName()));
+                    TextComponent.Builder builder = Component.text().append(translator.tr("toggled." + dimension, stateResolver(worldState.enabled()), worldResolver(world.getName())));
 
                     // Only output the expiration time if disabled
                     if (worldState.expiresAt() != null && !worldState.enabled()) {
@@ -81,8 +79,8 @@ public class CommandFeedback {
             case "state" -> {
                 if (environment == null || world == null) return Component.empty();
 
-                Database.WorldPauseStatus worldState = state.getState(world, environment);
-                TextComponent.Builder builder = Component.text().append(deserialize(languageFile.getString("state." + dimension), worldState.enabled(), world.getName()));
+                TrackedWorldsRepository.WorldPauseStatus worldState = state.getState(world, environment);
+                TextComponent.Builder builder = Component.text().append(translator.tr("state." + dimension, stateResolver(worldState.enabled()), worldResolver(world.getName())));
 
                 if (worldState.expiresAt() != null && !worldState.enabled()) {
                     builder.append(Component.text(" "))
@@ -94,20 +92,15 @@ public class CommandFeedback {
 
                 feedbackMessage = builder.build();
             }
-            default -> feedbackMessage = deserialize(languageFile.getString("unknown-error"), false, null);
+            default -> feedbackMessage = translator.tr("unknown-error", stateResolver(false), worldResolver(null));
         }
 
         return feedbackMessage;
     }
 
     public Title getTitleForDimension(World.Environment env) {
-        String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
-
-        final Component mainTitle = Component.text().append(mm.deserialize(configManager.getLanguageFile().getString("alert." + environment + ".title.title"))).build();
-        final Component subtitle = Component.text().append(mm.deserialize(configManager.getLanguageFile().getString("alert." + environment + ".title.subtitle"))).build();
-
-        final Title.Times times = Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500));
-        return Title.title(mainTitle, subtitle, times);
+        return translator.title("alert." + (env.equals(World.Environment.NETHER) ? "nether" : "end") + ".title",
+                Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(3), Duration.ofMillis(500)));
     }
 
     public Title getTitleForTeleport(int secondsRemaining, boolean fadeInTitle) {
@@ -115,9 +108,10 @@ public class CommandFeedback {
                 : (secondsRemaining == 2) ? NamedTextColor.RED
                 : NamedTextColor.DARK_RED;
 
-        final Component mainTitle = Component.text().append(mm.deserialize(configManager.getLanguageFile().getString("preteleport.title"))).build();
+        final Component mainTitle = Component.text().append(translator.tr("preteleport.title")).build();
         final Component subtitle = Component.text()
-                .append(mm.deserialize(configManager.getLanguageFile().getString("preteleport.subtitle")))
+                .append(translator.tr("preteleport.subtitle"))
+                .append(Component.text(" "))
                 .append(Component.text(secondsRemaining, numColor)).build();
 
         return Title.title(
@@ -129,7 +123,7 @@ public class CommandFeedback {
 
     public Component getDimensionIsPausedMessage(World.Environment env) {
         String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
-        return deserialize(configManager.getLanguageFile().getString("alert." + environment + ".chat"), false, null);
+        return translator.tr("alert." + environment + ".chat", stateResolver(false), worldResolver(null));
     }
 
     public Component getStateChangedMessage(World world, World.Environment env, boolean enabled) {
@@ -138,27 +132,16 @@ public class CommandFeedback {
 
     public Component getStateChangedMessage(String world, World.Environment env, boolean enabled) {
         String environment = env.equals(World.Environment.NETHER) ? "nether" : "end";
-        return deserialize(configManager.getLanguageFile().getString("alert." + environment + ".on-toggle"), enabled, world);
+        return translator.tr("alert." + environment + ".on-toggle", stateResolver(enabled), worldResolver(world));
     }
 
-    private Component deserialize(String serializedString, boolean worldState, String worldName) {
-        final Component prefixComponent = mm.deserialize(configManager.getLanguageFile().getString("prefix"));
-        final Component pausedComponent = mm.deserialize(configManager.getLanguageFile().getString("state.paused"));
-        final Component unpausedComponent = mm.deserialize(configManager.getLanguageFile().getString("state.unpaused"));
+    private TagResolver stateResolver(boolean worldState) {
+        final Component pausedComponent = translator.tr("state.paused");
+        final Component unpausedComponent = translator.tr("state.unpaused");
+        return Placeholder.component("state", worldState ? unpausedComponent : pausedComponent);
+    }
 
-        return mm.deserialize(serializedString,
-                Placeholder.component(
-                        "prefix",
-                        prefixComponent
-                ),
-                Placeholder.component(
-                        "state",
-                        worldState ? unpausedComponent : pausedComponent
-                ),
-                Placeholder.component(
-                        "world",
-                        Component.text(worldName != null ? worldName : "", NamedTextColor.BLUE)
-                )
-        );
+    private TagResolver worldResolver(String worldName) {
+        return Placeholder.component("world", Component.text(worldName != null ? worldName : "", NamedTextColor.BLUE));
     }
 }

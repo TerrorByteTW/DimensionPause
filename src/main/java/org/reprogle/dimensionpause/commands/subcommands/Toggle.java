@@ -28,7 +28,8 @@ public class Toggle implements SubCommand {
     public void perform(CommandSender sender, String[] args) {
         if (args.length >= 3 && (args[2].equalsIgnoreCase("end") || args[2].equalsIgnoreCase("nether"))) {
             World world = Bukkit.getWorld(args[1]);
-            if (world == null) {
+            String dimension = args[2].toLowerCase();
+            if (world == null || (!dimension.equals("nether") && !dimension.equals("end"))) {
                 sender.sendMessage(commandFeedback.sendCommandFeedback("usage", null, null));
                 return;
             }
@@ -44,7 +45,6 @@ public class Toggle implements SubCommand {
                 }
             }
 
-            String dimension = args[2].toLowerCase();
             World.Environment environment = dimension.equalsIgnoreCase("nether") ? World.Environment.NETHER : World.Environment.THE_END;
             state.setDimensionState(world, environment, pauseExpiration);
             sender.sendMessage(commandFeedback.sendCommandFeedback("newstate", world, dimension));

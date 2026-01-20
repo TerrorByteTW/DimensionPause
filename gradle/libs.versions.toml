@@ -9,7 +9,6 @@ guice = '7.0.0'
 lombok = "8.10.2"
 folia-api = "1.21.11-R0.1-SNAPSHOT"
 
-
 [plugins]
 lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
 

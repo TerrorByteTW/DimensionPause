@@ -8,7 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.reprogle.dimensionpause.utils.ConfigManager;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.dimensionpause.utils.DimensionState;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 
@@ -16,7 +16,7 @@ public class PlayerInteractEventListener implements Listener {
     @Inject
     DimensionState state;
     @Inject
-    ConfigManager configManager;
+    BytePluginConfig config;
     @Inject
     CommandFeedback commandFeedback;
 
@@ -34,8 +34,8 @@ public class PlayerInteractEventListener implements Listener {
         event.setCancelled(true);
         Player p = event.getPlayer();
 
-        boolean sendTitle = configManager.getPluginConfig().getBoolean("dimensions.end.alert.title");
-        boolean sendChat = configManager.getPluginConfig().getBoolean("dimensions.end.alert.chat");
+        boolean sendTitle = config.config().getBoolean("dimensions.end.alert.title");
+        boolean sendChat = config.config().getBoolean("dimensions.end.alert.chat");
 
         if (sendTitle) {
             p.showTitle(commandFeedback.getTitleForDimension(World.Environment.THE_END));

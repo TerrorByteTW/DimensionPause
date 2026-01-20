@@ -8,8 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.reprogle.dimensionpause.utils.ConfigManager;
-import org.reprogle.dimensionpause.DimensionPausePlugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.dimensionpause.utils.DimensionState;
 import org.reprogle.dimensionpause.commands.CommandFeedback;
 import org.reprogle.dimensionpause.utils.WorldUtils;
@@ -18,9 +18,9 @@ public class PlayerJoinEventListener implements Listener {
     @Inject
     DimensionState state;
     @Inject
-    ConfigManager configManager;
+    BytePluginConfig config;
     @Inject
-    DimensionPausePlugin plugin;
+    JavaPlugin plugin;
     @Inject
     CommandFeedback commandFeedback;
 
@@ -30,7 +30,7 @@ public class PlayerJoinEventListener implements Listener {
         World.Environment currentEnv = player.getWorld().getEnvironment();
         World overworld = WorldUtils.getOverworld(player.getWorld());
         World currentWorld = player.getWorld();
-        String kickWorld = configManager.getPluginConfig().getString("kick-world");
+        String kickWorld = config.config().getString("kick-world");
 
         // No need to do anything if the player is already in the world they would be kicked to
         if (currentWorld.getName().equals(kickWorld)) return;
@@ -40,7 +40,7 @@ public class PlayerJoinEventListener implements Listener {
             // If the player can bypass the environment, quit processing
             if (state.canBypass(player, overworld, currentEnv)) return;
 
-            final int delay = configManager.getPluginConfig().getInt("on-join-kick-delay");
+            final int delay = Math.clamp(config.config().getLong("on-join-kick-delay"), 1, Integer.MAX_VALUE);
             final int[] t = {delay};
 
             player.getScheduler().runAtFixedRate(plugin, task -> {
