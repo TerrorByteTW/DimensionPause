@@ -22,6 +22,8 @@ public class ListenerManager {
     PortalCreateEventListener portalCreateEventListener;
     @Inject
     PlayerPortalEventListener playerPortalEventListener;
+    @Inject
+    WorldLoadEventListener worldLoadEventListener;
 
     @Inject
     ListenerManager(JavaPlugin plugin) {
@@ -34,11 +36,12 @@ public class ListenerManager {
     public void setupListeners() {
         PluginManager pm = plugin.getServer().getPluginManager();
         final List<Listener> listeners = new ArrayList<>(List.of(
-                playerJoinEventListener,
-                playerTeleportEventListener,
-                playerInteractEventListener,
-                portalCreateEventListener,
-                playerPortalEventListener));
+            playerJoinEventListener,
+            playerTeleportEventListener,
+            playerInteractEventListener,
+            portalCreateEventListener,
+            playerPortalEventListener,
+            worldLoadEventListener));
         listeners.forEach(event -> pm.registerEvents(event, plugin));
     }
 

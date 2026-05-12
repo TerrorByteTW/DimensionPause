@@ -3,11 +3,11 @@
 
 [versions]
 boosted-yaml = "1.3.7"
-paper-api = "1.21.11-R0.1-SNAPSHOT"
-bstats = "3.1.0"
+paper-api = "26.1.2.build.+"
+bstats = "3.2.1"
 guice = '7.0.0'
-lombok = "8.10.2"
-folia-api = "1.21.11-R0.1-SNAPSHOT"
+lombok = "9.5.0"
+bytelib = 'ByteLib-1.1.3'
 
 [plugins]
 lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
@@ -17,5 +17,5 @@ boosted-yaml = { module = "dev.dejvokep:boosted-yaml", version.ref = "boosted-ya
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
-folia-api = { module = "dev.folia:folia-api", version.ref = "folia-api" }
+bytelib = { module = "com.github.TerrorByteTW:ByteLib", version.ref = "bytelib" }
 

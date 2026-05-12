@@ -12,7 +12,7 @@ plugins {
 }
 
 project.group = "org.reprogle"
-project.version = "2.0.0"
+project.version = "2.1.0"
 project.description = "Allows you to pause dimensions to prevent players from entering them"
 
 val isReleaseBuild = project.hasProperty("releaseBuild")
@@ -29,7 +29,7 @@ if (!isReleaseBuild || forceBuildId) {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -42,16 +42,19 @@ repositories {
         name = "sonatype"
         url = uri("https://oss.sonatype.org/content/groups/public/")
     }
+    maven {
+        name = "jitpack"
+        url = uri("https://jitpack.io/")
+    }
     mavenCentral()
 }
 
 dependencies {
+    implementation(libs.bytelib)
     compileOnly(libs.paper.api)
-//    compileOnly(libs.folia.api)
     compileOnly(libs.boosted.yaml)
     implementation(libs.bstats)
     compileOnly(libs.guice)
-    implementation(files("V:\\Development Projects\\ByteLib\\build\\libs\\ByteLib-1.0.jar"))
 }
 
 tasks.withType<JavaCompile> {

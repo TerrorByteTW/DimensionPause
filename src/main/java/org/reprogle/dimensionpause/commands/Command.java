@@ -76,7 +76,7 @@ public final class Command implements BasicCommand {
         }
 
         // args[] here is "including repeated spaces" according to Paper;
-        // but for typical behavior you can treat it like normal args for partial matching. :contentReference[oaicite:4]{index=4}
+        // but for typical behavior you can treat it like normal args for partial matching.
         if (args.length <= 1) {
             String token = args.length == 0 ? "" : args[0];
 

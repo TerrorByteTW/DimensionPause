@@ -1,6 +1,6 @@
 name: DimensionPause
 version: '@version@'
 main: org.reprogle.dimensionpause.DimensionPausePlugin
-api-version: '1.21.11'
+api-version: '26.1.2'
 bootstrapper: org.reprogle.bytelib.BytePluginBootstrap
 loader: org.reprogle.bytelib.BytePluginLoader
